@@ -16,16 +16,20 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
-from database import views
-from rest_framework.urlpatterns import format_suffix_patterns
+from django.urls import path, include # URL routing functions
+# from api import views # API views python file
+from rest_framework.urlpatterns import format_suffix_patterns # Format suffixes for URLs
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
-    path("", views.default_view),
-    path("admin/", admin.site.urls),
-    path("users/", views.user_list),
-    path("users/<int:id>/", views.user_detail),
+    # path("", views.default_view), # must import views.default_view in api.views.py
+    path('admin/', admin.site.urls),
+    path('api/', include('api.urls')),  # Route all /api/ requests to api app
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # Uncomment the following line if you want to enable format suffixes in your URLs, must add format = None to the view functions
 # urlpatterns = format_suffix_patterns(urlpatterns)
