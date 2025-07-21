@@ -63,6 +63,11 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
+  // Debug logging
+  const log = (message, data = null) => {
+    console.log(`[AuthContext] ${message}`, data);
+  };
+
   // Check for existing authentication on app start
   useEffect(() => {
     checkAuthStatus();
@@ -70,27 +75,34 @@ export const AuthProvider = ({ children }) => {
 
   const checkAuthStatus = async () => {
     try {
+      log('Checking auth status...');
       dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
       
       // Check if user data exists in storage
       const storedUser = await apiService.getUser();
       const token = await apiService.getToken();
       
+      log('Stored data:', { hasUser: !!storedUser, hasToken: !!token });
+      
       if (storedUser && token) {
         // Validate token by fetching current user
         try {
+          log('Validating token...');
           const currentUser = await apiService.getCurrentUser();
+          log('Token valid, user authenticated:', currentUser);
           dispatch({ type: AUTH_ACTIONS.SET_USER, payload: currentUser });
         } catch (error) {
           // Token might be expired, clear everything
+          log('Token validation failed, clearing tokens:', error.message);
           await apiService.clearTokens();
           dispatch({ type: AUTH_ACTIONS.LOGOUT });
         }
       } else {
+        log('No stored auth data found');
         dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false });
       }
     } catch (error) {
-      console.error('Auth check error:', error);
+      log('Auth check error:', error.message);
       dispatch({ type: AUTH_ACTIONS.SET_ERROR, payload: error.message });
     }
   };
@@ -102,7 +114,8 @@ export const AuthProvider = ({ children }) => {
       
       const response = await apiService.login(email, password, userType);
       dispatch({ type: AUTH_ACTIONS.SET_USER, payload: response.user });
-      
+      // Log the user after login
+      console.log('Logged in user (context):', response.user);
       return response;
     } catch (error) {
       dispatch({ type: AUTH_ACTIONS.SET_ERROR, payload: error.message });
@@ -112,14 +125,22 @@ export const AuthProvider = ({ children }) => {
 
   const register = async (userData) => {
     try {
+      log('Starting registration process...', {
+        username: userData.username,
+        email: userData.email,
+        user_type: userData.user_type
+      });
       dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
       dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
       
       const response = await apiService.register(userData);
+      log('Registration successful:', response.user);
       dispatch({ type: AUTH_ACTIONS.SET_USER, payload: response.user });
-      
+      // Log the user after registration
+      console.log('Registered user (context):', response.user);
       return response;
     } catch (error) {
+      log('Registration failed:', error.message);
       dispatch({ type: AUTH_ACTIONS.SET_ERROR, payload: error.message });
       throw error;
     }
@@ -127,23 +148,28 @@ export const AuthProvider = ({ children }) => {
 
   const logout = async () => {
     try {
+      log('Starting logout process...');
       dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: true });
       await apiService.logout();
+      log('Logout successful');
       dispatch({ type: AUTH_ACTIONS.LOGOUT });
     } catch (error) {
-      console.error('Logout error:', error);
+      log('Logout error:', error.message);
       // Still logout locally even if server call fails
       dispatch({ type: AUTH_ACTIONS.LOGOUT });
     }
   };
-
+  
   const updateUser = async (profileData) => {
     try {
+      log('Updating user profile...');
       const updatedUser = await apiService.updateProfile(profileData);
       await apiService.storeUser(updatedUser);
       dispatch({ type: AUTH_ACTIONS.SET_USER, payload: updatedUser });
+      log('Profile updated successfully');
       return updatedUser;
     } catch (error) {
+      log('Profile update failed:', error.message);
       dispatch({ type: AUTH_ACTIONS.SET_ERROR, payload: error.message });
       throw error;
     }

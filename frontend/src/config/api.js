@@ -5,7 +5,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // const BASE_URL = 'http://YOUR_VPS_IP:8000/api'; // Update this with your actual VPS IP
 // const BASE_URL = 'http://157.66.47.161/api'
 
-const BASE_URL = 'http://127.0.0.1/api'
+// const BASE_URL = 'http://localhost:8000/api'
+const BASE_URL = 'http://127.0.0.1:8000/api'
 class ApiService {
   constructor() {
     this.baseURL = BASE_URL;
@@ -123,7 +124,7 @@ class ApiService {
 
     try {
       let response = await fetch(`${this.baseURL}${endpoint}`, config);
-
+    
       // If unauthorized, try to refresh token
       if (response.status === 401 && token) {
         try {
@@ -138,6 +139,7 @@ class ApiService {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        console.log('Registration failed, response:', errorData); // ADD THIS
         throw new Error(errorData.message || `HTTP ${response.status}`);
       }
 
@@ -174,6 +176,9 @@ class ApiService {
         throw new Error(`Incorrect account type. Expected ${userType}, got ${data.user.user_type}`);
       }
 
+      // Log the user object for debugging
+      console.log('User object returned from backend:', data.user);
+
       // Store tokens and user data
       await this.storeTokens(data.tokens.access, data.tokens.refresh);
       await this.storeUser(data.user);
@@ -197,7 +202,19 @@ class ApiService {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.message || 'Registration failed');
+        // Build a readable error string from DRF errors
+        let errorMsg = 'Registration failed';
+        if (typeof errorData === 'object' && errorData !== null) {
+          errorMsg = Object.entries(errorData)
+            .map(([field, msgs]) => Array.isArray(msgs)
+              ? `${field}: ${msgs.join(', ')}`
+              : `${field}: ${msgs}`
+            )
+            .join('\n');
+        } else if (typeof errorData === 'string') {
+          errorMsg = errorData;
+        }
+        throw new Error(errorMsg);
       }
 
       const data = await response.json();

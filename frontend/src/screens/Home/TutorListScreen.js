@@ -1,3 +1,7 @@
+// TutorListScreen.js
+
+import apiService from '../../config/api'; // <-- Add this import!
+
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -10,22 +14,44 @@ import {
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import TutorCard from '../../components/TutorCard';
 import TinderView from '../../components/TinderView';
-import { mockTutors } from '../../data/mockData';
+// import { mockTutors } from '../../data/mockData';
 
 const TutorListScreen = ({ navigation, route }) => {
   const [viewMode, setViewMode] = useState('list');
-  const [tutors, setTutors] = useState(mockTutors);
+  // const [tutors, setTutors] = useState(mockTutors);
+  const [tutors, setTutors] = useState([]);
   const [currentTutorIndex, setCurrentTutorIndex] = useState(0);
   const filters = route.params?.filters || {};
 
+  // useEffect(() => {
+  //   // TODO: API call - Fetch tutors based on search filters
+  //   // GET /api/tutors/?filters={filters}
+  //   // Apply filters from SearchScreen and return matching tutors
+  //   // Replace mockTutors with actual API response
+  //   // In real app: fetchTutors(filters)
+  //   console.log('Applied filters:', filters);
+  // }, [filters]);
+
+  // NEW CODE:
   useEffect(() => {
-    // TODO: API call - Fetch tutors based on search filters
-    // GET /api/tutors/?filters={filters}
-    // Apply filters from SearchScreen and return matching tutors
-    // Replace mockTutors with actual API response
-    // In real app: fetchTutors(filters)
-    console.log('Applied filters:', filters);
+    const fetchTutors = async () => {
+      setLoading(true);
+      try {
+        // Map your price filter to something your backend expects, e.g. min_price/max_price if needed
+        const params = {
+          ...filters,
+          price: filters.priceRange, // or adapt as needed
+        };
+        const data = await apiService.getTutors(params);
+        setTutors(data); // assuming the backend returns a list of tutor objects
+      } catch (error) {
+        Alert.alert('Lỗi', 'Không thể tải danh sách gia sư');
+      }
+      setLoading(false);
+    };
+    fetchTutors();
   }, [filters]);
+
 
   const handleLikeTutor = async (tutorId) => {
     try {

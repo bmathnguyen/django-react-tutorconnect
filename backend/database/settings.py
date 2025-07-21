@@ -186,6 +186,7 @@ INSTALLED_APPS = [
     # Local apps
     'database',  # Contains our custom models (CustomUser, TutorProfile, etc.)
     'api',       # Contains our API views, serializers, and WebSocket consumers
+    'rest_framework_simplejwt.token_blacklist', # NEW: Blacklist for JWT tokens
 ]
 
 MIDDLEWARE = [

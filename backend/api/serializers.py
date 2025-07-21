@@ -48,6 +48,7 @@ class UserSerializer(serializers.ModelSerializer):
             'student_profile', 'tutor_profile'
         ]
 
+# Register User
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, validators=[validate_password])
     password_confirm = serializers.CharField(write_only=True)

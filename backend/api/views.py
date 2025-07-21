@@ -18,6 +18,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q, Avg
 from django.shortcuts import get_object_or_404
 from django.core.cache import cache
+from django.contrib.auth.forms import UserCreationForm
 
 from .models import *
 from .serializers import *
