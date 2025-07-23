@@ -26,9 +26,9 @@ class StudentProfileAdmin(admin.ModelAdmin):
 
 @admin.register(TutorProfile)
 class TutorProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'university', 'experience_years', 'hourly_rate', 'rating_average', 'is_verified')
-    list_filter = ('experience_years', 'is_verified')
-    search_fields = ('user__email', 'university', 'location')
+    list_display = ('user', 'university', 'major', 'hourly_rate', 'rating_average', 'is_verified')
+    list_filter = ('university', 'is_verified')
+    search_fields = ('user__email', 'university', 'major', 'location')
 
 @admin.register(ChatRoom)
 class ChatRoomAdmin(admin.ModelAdmin):
