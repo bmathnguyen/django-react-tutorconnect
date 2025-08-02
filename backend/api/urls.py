@@ -9,9 +9,10 @@ urlpatterns = [
     path('auth/logout/', views.logout_view, name='logout'),
     path('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('auth/me/', views.me_view, name='me'),
-
+    
     # Tutor endpoints
-    path('tutors/', views.TutorListView.as_view(), name='tutor-list'),
+    path('search/tutors/', views.TutorSearchView.as_view(), name='tutor-search'),
+    # path('tutors/', views.TutorListView.as_view(), name='tutor-list'),
     path('tutors/<uuid:id>/', views.TutorDetailView.as_view(), name='tutor-detail'),
 
     # Tutor interactions

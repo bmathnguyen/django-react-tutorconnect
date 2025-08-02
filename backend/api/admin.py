@@ -1,6 +1,18 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import *
+from api.models import (
+    CustomUser, 
+    Subject, 
+    StudentProfile, 
+    TutorProfile, 
+    TutorSubject,
+    TutorLike, 
+    TutorSave, 
+    TutorView,
+    ChatRoom, 
+    Message,
+    Review
+)
 
 @admin.register(CustomUser)
 class UserAdmin(BaseUserAdmin):
@@ -15,7 +27,7 @@ class UserAdmin(BaseUserAdmin):
 
 @admin.register(Subject)
 class SubjectAdmin(admin.ModelAdmin):
-    list_display = ('name', 'description', 'created_at')
+    list_display = ('name',)
     search_fields = ('name',)
 
 @admin.register(StudentProfile)
@@ -26,9 +38,10 @@ class StudentProfileAdmin(admin.ModelAdmin):
 
 @admin.register(TutorProfile)
 class TutorProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'university', 'major', 'hourly_rate', 'rating_average', 'is_verified')
-    list_filter = ('university', 'is_verified')
-    search_fields = ('user__email', 'university', 'major', 'location')
+    list_display = ('user', 'education', 'price_min', 'price_max', 'rating_average', 'is_verified', 'location')
+    list_filter = ('education', 'is_verified', 'location')
+    ordering = ('-price_min',)
+    search_fields = ('user__email', 'education', 'location')
 
 @admin.register(ChatRoom)
 class ChatRoomAdmin(admin.ModelAdmin):
