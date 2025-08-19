@@ -9,6 +9,8 @@ import { ActivityIndicator, View, StyleSheet, Text } from 'react-native';
 
 // Context
 import { AuthProvider, useAuth } from './src/context/AuthContext';
+import { LanguageProvider } from './src/context/LanguageContext';
+import { useTranslation } from './src/hooks/useTranslation';
 
 // Import your screen components
 import LoginScreen from './src/screens/Auth/LoginScreen';
@@ -25,16 +27,21 @@ const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
 // Loading Component
-const LoadingScreen = () => (
-  <View style={styles.loadingContainer}>
-    <ActivityIndicator size="large" color="#2563eb" />
-    <Text style={styles.loadingText}>Đang tải...</Text>
-  </View>
-);
+const LoadingScreen = () => {
+  const { t } = useTranslation();
+  
+  return (
+    <View style={styles.loadingContainer}>
+      <ActivityIndicator size="large" color="#2563eb" />
+      <Text style={styles.loadingText}>{t('common.loading')}</Text>
+    </View>
+  );
+};
 
 // Bottom Tab Navigator (Main App)
 const MainTabNavigator = () => {
   const { user } = useAuth();
+  const { t } = useTranslation();
   
   return (
     <Tab.Navigator
@@ -64,7 +71,7 @@ const MainTabNavigator = () => {
       <Tab.Screen 
         name="Search" 
         component={SearchScreen}
-        options={{ tabBarLabel: 'Trang chủ' }}
+        options={{ tabBarLabel: t('navigation.home') }}
       />
       {/* Only show Saved and TutorList for students */}
       {user?.user_type === 'student' && (
@@ -72,24 +79,24 @@ const MainTabNavigator = () => {
           <Tab.Screen
             name="Saved"
             component={SavedScreen}
-            options={{ tabBarLabel: 'Đã lưu' }}
+            options={{ tabBarLabel: t('navigation.saved') }}
           />
           <Tab.Screen 
             name="TutorList" 
             component={TutorListScreen}
-            options={{ tabBarLabel: 'Tinder' }}
+            options={{ tabBarLabel: t('navigation.tinder') }}
           />
         </>
       )}
       <Tab.Screen 
         name="Messages" 
         component={MessagesScreen}
-        options={{ tabBarLabel: 'Tin nhắn' }}
+        options={{ tabBarLabel: t('navigation.messages') }}
       />
       <Tab.Screen 
         name="Profile" 
         component={ProfileScreen}
-        options={{ tabBarLabel: 'Hồ sơ' }}
+        options={{ tabBarLabel: t('navigation.profile') }}
       />
     </Tab.Navigator>
   );
@@ -107,7 +114,10 @@ const AuthStack = () => (
 );
 
 // Main Stack Navigator - Wrapped component to avoid hook issues
-const MainStack = () => (
+const MainStack = () => {
+  const { t } = useTranslation();
+  
+  return (
   <Stack.Navigator 
     initialRouteName="MainApp"
     screenOptions={{ headerShown: false }}
@@ -122,8 +132,8 @@ const MainStack = () => (
       options={{ 
         presentation: 'modal',
         headerShown: true,
-        headerTitle: 'Hồ sơ gia sư',
-        headerBackTitle: 'Quay lại'
+        headerTitle: t('tutor.profile'),
+        headerBackTitle: t('common.back')
       }}
     />
     <Stack.Screen 
@@ -131,12 +141,13 @@ const MainStack = () => (
       component={ChatScreen}
       options={{ 
         headerShown: true,
-        headerTitle: 'Chat',
-        headerBackTitle: 'Quay lại'
+        headerTitle: t('chat.title'),
+        headerBackTitle: t('common.back')
       }}
     />
   </Stack.Navigator>
-);
+  );
+};
 
 // Navigation Container with Auth Check
 const AppNavigator = () => {
@@ -157,9 +168,11 @@ const AppNavigator = () => {
 // Main App Component
 const App = () => {
   return (
-    <AuthProvider>
-      <AppNavigator />
-    </AuthProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <AppNavigator />
+      </AuthProvider>
+    </LanguageProvider>
   );
 };
 

@@ -262,9 +262,39 @@ class ApiService {
 
   // Tutor methods
   async getTutors(params = {}) {
-    const queryString = new URLSearchParams(params).toString();
-    const endpoint = `/tutors/${queryString ? `?${queryString}` : ''}`;
-    return await this.request(endpoint);
+    console.log('getTutors called with params:', params);
+    // Since /tutors/ endpoint doesn't exist, use search endpoint
+    return await this.searchTutors(params);
+  }
+
+  // Search tutors with advanced filters
+  async searchTutors(params = {}) {
+    console.log('searchTutors called with params:', params);
+    
+    // Clean up parameters - remove empty values
+    const cleanParams = {};
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== null && value !== undefined && value !== '') {
+        cleanParams[key] = value;
+      }
+    });
+
+    console.log('Cleaned params:', cleanParams);
+    
+    const queryString = new URLSearchParams(cleanParams).toString();
+    const endpoint = `/search/tutors/${queryString ? `?${queryString}` : ''}`;
+    
+    console.log('Search endpoint:', endpoint);
+    console.log('Full URL:', `${this.baseURL}${endpoint}`);
+    
+    try {
+      const result = await this.request(endpoint);
+      console.log('Search result:', result);
+      return result;
+    } catch (error) {
+      console.error('Search API error:', error);
+      throw error;
+    }
   }
 
   async getTutorDetail(tutorId) {

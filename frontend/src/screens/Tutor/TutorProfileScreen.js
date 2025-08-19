@@ -12,7 +12,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import apiService from '../../config/api';
 
 const TutorProfileScreen = ({ navigation, route }) => {
-  const { tutorId } = route.params;
+  const { tutorId } = route.params; // This should always be uuid
   const [tutor, setTutor] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -27,25 +27,38 @@ const TutorProfileScreen = ({ navigation, route }) => {
       const data = await apiService.getTutorDetail(tutorId);
       setTutor(data);
     } catch (error) {
-      Alert.alert('Lỗi', 'Không thể tải thông tin gia sư');
+      Alert.alert('Error', 'Unable to load tutor profile');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleStartChat = () => {
-    navigation.navigate('Chat', {
-      tutorId: tutor.id || tutor.uuid,
-      tutorName: tutor.name || `${tutor.first_name} ${tutor.last_name}`,
-    });
+  const handleStartChat = async () => {
+    try {
+      // Create or get existing chat room
+      const chatRoom = await apiService.createChatRoom(tutor.uuid);
+      
+      navigation.navigate('Chat', {
+        roomId: chatRoom.id,
+        tutorId: tutor.uuid,
+        tutorName: tutor.name || `${tutor.first_name} ${tutor.last_name}`,
+      });
+    } catch (error) {
+      console.error('Failed to create chat room:', error);
+      // Navigate anyway - let Chat screen handle the error
+      navigation.navigate('Chat', {
+        tutorId: tutor.id || tutor.uuid,
+        tutorName: tutor.name || `${tutor.first_name} ${tutor.last_name}`,
+      });
+    }
   };
 
   const handleLikeTutor = async () => {
     try {
-      await apiService.likeTutor(tutor.id || tutor.uuid);
-      Alert.alert('Thành công', 'Đã thêm vào danh sách yêu thích!');
+      await apiService.likeTutor(tutor.uuid);
+      Alert.alert('Success', 'Added to favorites!');
     } catch (error) {
-      Alert.alert('Lỗi', 'Không thể thêm vào yêu thích');
+      Alert.alert('Error', 'Unable to add to favorites');
     }
   };
 
@@ -53,23 +66,27 @@ const TutorProfileScreen = ({ navigation, route }) => {
     return (
       <View style={[styles.container, styles.centered]}>
         <ActivityIndicator size="large" color="#2563eb" />
-        <Text style={{ marginTop: 8 }}>Đang tải...</Text>
+        <Text style={{ marginTop: 8 }}>Loading...</Text>
       </View>
     );
   }
 
-  // Support for different key names
+  // Map UI variables directly from API response
   const avatarEmoji = tutor.avatar || '👨‍🏫';
-  const tutorName = tutor.name || `${tutor.first_name} ${tutor.last_name}`;
-  const major = tutor.major || (tutor.tutor_profile?.major ?? '');
-  const university = tutor.university || (tutor.tutor_profile?.university ?? '');
-  const graduation = tutor.graduation || (tutor.tutor_profile?.graduation ?? '');
-  const achievements = tutor.achievements || (tutor.tutor_profile?.top_achievements ?? []);
-  const rating = tutor.rating || (tutor.tutor_profile?.rating ?? 5);
-  const experience = tutor.experience || (tutor.tutor_profile?.experience_years ?? '0-1 năm');
-  const bio = tutor.bio || (tutor.tutor_profile?.bio ?? '');
-  const subjects = tutor.subjects || (tutor.tutor_profile?.subjects ?? []);
-  const price = tutor.hourly_rate || (tutor.tutor_profile?.hourly_rate ?? 0);
+  const tutorName = tutor.user ? `${tutor.user.first_name} ${tutor.user.last_name}` : '';
+  const education = tutor.education || 'Not updated';
+  const bio = tutor.bio || 'Not updated';
+  const achievements = tutor.achievements && tutor.achievements.length > 0 ? tutor.achievements : ['Not updated'];
+  const subjects = tutor.subjects && tutor.subjects.length > 0
+    ? tutor.subjects.map(s => `${s.name} (${s.level})`)
+    : ['Not updated'];
+  const price = tutor.price_min && tutor.price_max
+    ? `${Number(tutor.price_min).toLocaleString()} - ${Number(tutor.price_max).toLocaleString()} SGD/hour`
+    : 'Contact';
+  const rating = tutor.rating_average || 'Not updated';
+
+  // DEBUG: Log tutor object to verify data
+  console.log('Tutor object:', tutor);
 
   return (
     <View style={styles.container}>
@@ -94,31 +111,29 @@ const TutorProfileScreen = ({ navigation, route }) => {
           <View style={styles.ratingContainer}>
             <Icon name="star" size={16} color="#fbbf24" />
             <Text style={styles.ratingText}>
-              ({rating}) • {experience}
+              {rating !== 'Not updated' ? `(${rating})` : 'Not updated'}
             </Text>
           </View>
         </View>
       </View>
-
+      
       <ScrollView style={styles.content}>
         {/* Education Section */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Icon name="school" size={20} color="#2563eb" />
-            <Text style={styles.sectionTitle}>Giáo dục</Text>
+            <Text style={styles.sectionTitle}>Education</Text>
           </View>
-          <Text style={styles.schoolText}>{university}</Text>
-          <Text style={styles.detailText}>Chuyên ngành: {major}</Text>
-          <Text style={styles.detailText}>Tốt nghiệp: {graduation}</Text>
+          <Text style={styles.schoolText}>{education}</Text>
         </View>
 
         {/* Achievements Section */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
             <Icon name="emoji-events" size={20} color="#f59e0b" />
-            <Text style={styles.sectionTitle}>Thành tích</Text>
+            <Text style={styles.sectionTitle}>Achievements</Text>
           </View>
-          {(achievements.length > 0 ? achievements : ['Chưa cập nhật']).map((achievement, index) => (
+          {(achievements.length > 0 ? achievements : ['Not updated']).map((achievement, index) => (
             <View key={index} style={styles.achievementCard}>
               <Text style={styles.achievementText}>{achievement}</Text>
             </View>
@@ -127,23 +142,21 @@ const TutorProfileScreen = ({ navigation, route }) => {
 
         {/* Bio Section */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Giới thiệu</Text>
+          <Text style={styles.sectionTitle}>Bio</Text>
           <Text style={styles.bioText}>{bio}</Text>
         </View>
 
         {/* Subjects and Price */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Môn học & Giá</Text>
+          <Text style={styles.sectionTitle}>Subjects & Price</Text>
           <View style={styles.subjectsContainer}>
-            {(subjects.length > 0 ? subjects : ['Chưa cập nhật']).map((subject, index) => (
+            {subjects.map((subject, index) => (
               <View key={index} style={styles.subjectTag}>
                 <Text style={styles.subjectText}>{subject}</Text>
               </View>
             ))}
           </View>
-          <Text style={styles.priceText}>
-            {price ? `${price.toLocaleString()} VNĐ/h` : 'Liên hệ'}
-          </Text>
+          <Text style={styles.priceText}>{price}</Text>
         </View>
       </ScrollView>
 
@@ -153,14 +166,14 @@ const TutorProfileScreen = ({ navigation, route }) => {
           style={styles.chatButton}
           onPress={handleStartChat}
         >
-          <Text style={styles.chatButtonText}>Nhắn tin</Text>
+          <Text style={styles.chatButtonText}>Message</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.likeButton}
           onPress={handleLikeTutor}
         >
           <Icon name="favorite" size={16} color="white" />
-          <Text style={styles.likeButtonText}>Yêu thích</Text>
+          <Text style={styles.likeButtonText}>Save Tutor</Text>
         </TouchableOpacity>
       </View>
     </View>

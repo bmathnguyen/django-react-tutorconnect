@@ -19,7 +19,7 @@ class TutorListSerializer(serializers.ModelSerializer):
     class Meta:
         model = TutorProfile
         fields = [
-            'id', 'user', 'education', 'location', 'rating_average', 'total_reviews',
+            'uuid', 'user', 'education', 'location', 'rating_average', 'total_reviews',
             'profile_image', 'subjects', 'class_levels', 'price_min', 'price_max',
             'is_liked', 'is_saved'
         ]
@@ -29,7 +29,7 @@ class TutorListSerializer(serializers.ModelSerializer):
         Returns a dictionary with basic user info.
         """
         return {
-            'id': str(obj.user.id),
+            'id': str(obj.user.id),  # Keep user.id for the user subfield (not tutor profile)
             'first_name': obj.user.first_name,
             'last_name': obj.user.last_name,
         }

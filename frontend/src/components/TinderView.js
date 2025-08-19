@@ -6,7 +6,8 @@ import {
   TouchableOpacity,
   Dimensions,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import Icon from 'react-native-vector-icons/MaterialIcons'; 
+// import { useTranslation } from '../hooks/useTranslation';
 
 const { width } = Dimensions.get('window');
 
@@ -14,7 +15,7 @@ const TinderView = ({ tutors, currentIndex, onSwipe, onViewProfile }) => {
   if (!tutors || tutors.length === 0 || currentIndex >= tutors.length) {
     return (
       <View style={[styles.container, styles.centered]}>
-        <Text style={styles.emptyText}>Không có gia sư nào</Text>
+        <Text style={styles.emptyText}>{t('tinder.noTutors', 'No tutors available')}</Text>
       </View>
     );
   }

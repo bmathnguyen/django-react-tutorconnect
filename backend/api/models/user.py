@@ -52,8 +52,8 @@ class CustomUser(AbstractUser):
         blank=True,
         validators=[
             RegexValidator(
-                regex=r'^\d{10}$',
-                message='Phone number must be exactly 10 digits (e.g., 0123456789)',
+                regex=r'^(\d{8}|\d{10})$',
+                message='Phone number must be 8 or 10 digits (e.g., 91234567 or 0123456789)',
                 code='invalid_phone'
             )
         ]
@@ -74,23 +74,23 @@ class CustomUser(AbstractUser):
     # Timestamp that updates automatically when user data is modified
     updated_at = models.DateTimeField(auto_now=True)
     
-    # Allow username to be blank and set it to null in the database
-    username = models.CharField(
-        max_length=150,
-        unique=False,
-        blank=True,
-        null=True,
-        help_text='Optional. 150 characters or fewer. Letters, digits and @/./+/-/_ only.',
-        error_messages={
-            'unique': "A user with that username already exists.",
-        },
-    )
+    # # Allow username to be blank and set it to null in the database
+    # username = models.CharField(
+    #     max_length=150,
+    #     unique=False,
+    #     blank=True,
+    #     null=True,
+    #     help_text='Optional. 150 characters or fewer. Letters, digits and @/./+/-/_ only.',
+    #     error_messages={
+    #         'unique': "A user with that username already exists.",
+    #     },
+    # )
 
     # Use email as the primary identifier instead of username
     USERNAME_FIELD = 'email'
     
     # user_type is required during user creation
-    REQUIRED_FIELDS = ['user_type']
+    REQUIRED_FIELDS = ['user_type', 'username']
     
     class Meta:
         # It's generally better to let Django manage the table name (e.g., 'api_customuser').

@@ -11,7 +11,7 @@ def chat_file_path(instance, filename):
 
 class ChatRoom(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE, related_name='chat_rooms')
+    student = models.ForeignKey(StudentProfile, to_field='uuid', db_column='student_profile_uuid', on_delete=models.CASCADE, related_name='chat_rooms')
     tutor = models.ForeignKey(TutorProfile, on_delete=models.CASCADE, related_name='chat_rooms')
     created_at = models.DateTimeField(auto_now_add=True)
     last_message_at = models.DateTimeField(auto_now_add=True)

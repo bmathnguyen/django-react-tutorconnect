@@ -14,17 +14,41 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useAuth } from '../../context/AuthContext.js';
+import { useTranslation } from '../../hooks/useTranslation';
 
 import DropDownPicker from 'react-native-dropdown-picker';
 
 // Define choices outside the component
-const CLASS_LEVELS = ["Lớp 1-5", "Lớp 6-9", "Lớp 10-12"];
+// const CLASS_LEVELS = ["Lớp 1-5", "Lớp 6-9", "Lớp 10-12"];
+const CLASS_LEVELS = ["Sec 1", "Sec 2", "Sec 3", "Sec 4", "JC 1", "JC 2"];
+
+// const SUBJECTS = [
+//   "Toán", "Anh", "Lý", "Hóa", "Văn", "Sinh", "Sử", "Địa", "Tin", "GDCD", "Khác"
+// ];
 const SUBJECTS = [
-  "Toán", "Anh", "Lý", "Hóa", "Văn", "Sinh", "Sử", "Địa", "Tin", "GDCD", "Khác"
+  "Math", 
+  "English", 
+  "Physics", 
+  "Chemistry", 
+  "Biology", 
+  "History", 
+  "Geography", 
+  "Economics", 
+  "Literature", 
+  "Design and Technology", 
+  "Computer Studies", 
+  "Art", 
+  "Music", 
+  "Physical Education", 
+  "Social Studies", 
+  "Mother Tongue (Chinese, Malay, Tamil)", 
+  "Other"
 ];
-const LEVELS = ["Cơ Bản", "Nâng Cao"];
+// const LEVELS = ["Cơ Bản", "Nâng Cao"];
+const LEVELS = ["Basic", "Advanced"];
 
 const RegisterScreen = ({ navigation, route }) => {
+  const { t } = useTranslation();
   const [userType, setUserType] = useState(route.params?.userType || 'student');
   const [subjectList, setSubjectList] = useState([]);
   const [dropdownOpen, setDropdownOpen] = useState([]);
@@ -40,7 +64,7 @@ const RegisterScreen = ({ navigation, route }) => {
 
     // Profile-specific
     school: '',
-    grade: '10',
+    grade: 'Sec 1',
     learningGoals: [],
     // Tutor fields
     education: '', // Combined school/major
@@ -51,7 +75,7 @@ const RegisterScreen = ({ navigation, route }) => {
     useSamePrice: true,
     singlePrice: '',
     bio: '',
-    location: 'hanoi',
+    location: 'kentridge',
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -59,14 +83,14 @@ const RegisterScreen = ({ navigation, route }) => {
 
   const { register, isLoading, error, clearError, isAuthenticated } = useAuth();
 
-  useEffect(() => {
-    if (userType === 'tutor') {
-      fetch('YOUR_BACKEND_API_URL/api/subjects/')
-        .then(res => res.json())
-        .then(data => setSubjectList(data))
-        .catch(err => console.log('Failed to load subjects', err));
-    }
-  }, [userType]);
+  // useEffect(() => {
+  //   if (userType === 'tutor') {
+  //     fetch('http://127.0.0.1:8000/api/subjects/')
+  //       .then(res => res.json())
+  //       .then(data => setSubjectList(data))
+  //       .catch(err => console.log('Failed to load subjects', err));
+  //   }
+  // }, [userType]);
 
   // Navigate to main app if already authenticated
   useEffect(() => {
@@ -92,44 +116,44 @@ const RegisterScreen = ({ navigation, route }) => {
   // ---- FORM VALIDATION ----
   const validateForm = () => {
     if (!formData.firstName.trim()) {
-      Alert.alert('Lỗi', 'Vui lòng nhập tên');
+      Alert.alert('Error', 'Please enter your first name');
       return false;
     }
     if (!formData.lastName.trim()) {
-      Alert.alert('Lỗi', 'Vui lòng nhập họ');
+      Alert.alert('Error', 'Please enter your last name');
       return false;
     }
     if (!formData.email.trim()) {
-      Alert.alert('Lỗi', 'Vui lòng nhập email');
+      Alert.alert('Error', 'Please enter your email');
       return false;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.email.trim())) {
-      Alert.alert('Lỗi', 'Email không hợp lệ');
+      Alert.alert('Error', 'Invalid email');
       return false;
     }
     if (!formData.username.trim()) {
-      Alert.alert('Lỗi', 'Vui lòng nhập tên đăng nhập');
+      Alert.alert('Error', 'Please enter your username');
       return false;
     }
     if (formData.password.length < 6) {
-      Alert.alert('Lỗi', 'Mật khẩu phải có ít nhất 6 ký tự');
+      Alert.alert('Error', 'Password must be at least 6 characters');
       return false;
     }
     if (formData.password !== formData.passwordConfirm) {
-      Alert.alert('Lỗi', 'Mật khẩu xác nhận không khớp');
+      Alert.alert('Error', 'Passwords must match');
       return false;
     }
     if (!formData.phone.trim()) {
-      Alert.alert('Lỗi', 'Vui lòng nhập số điện thoại');
+      Alert.alert('Error', 'Please enter your phone number');
       return false;
     }
-    if (!/^\d{10}$/.test(formData.phone.trim())) {
-      Alert.alert('Lỗi', 'Số điện thoại phải có đúng 10 chữ số');
+    if (!/^(\d{8}|\d{10})$/.test(formData.phone.trim())) {
+      Alert.alert('Error', 'Phone number must be 8 or 10 digits');
       return false;
     }
     if (!formData.school.trim()) {
-      Alert.alert('Lỗi', userType === 'student' ? 'Vui lòng nhập trường học' : 'Vui lòng nhập học vấn');
+      Alert.alert('Error', userType === 'student' ? 'Please enter your school' : 'Please enter your education');
       return false;
     }
     // Tutor-specific
@@ -139,15 +163,15 @@ const RegisterScreen = ({ navigation, route }) => {
         !formData.subjects.length ||
         formData.subjects.some(s => !s.name.trim())
       ) {
-        Alert.alert('Lỗi', 'Vui lòng chọn lớp và môn dạy.');
+        Alert.alert('Error', 'Please select your subjects and class levels.');
         return false;
       }
       if (!formData.useSamePrice && Object.values(formData.prices).some(v => !v || isNaN(v) || v <= 0)) {
-        Alert.alert('Lỗi', 'Vui lòng nhập giá hợp lệ cho tất cả môn và cấp độ.');
+        Alert.alert('Error', 'Please enter valid prices for all subjects and levels.');
         return false;
       }
       if (formData.useSamePrice && (!formData.singlePrice || isNaN(formData.singlePrice) || formData.singlePrice <= 0)) {
-        Alert.alert('Lỗi', 'Vui lòng nhập mức giá hợp lệ.');
+        Alert.alert('Error', 'Please enter a valid price.');
         return false;
       }
     }
@@ -204,21 +228,21 @@ const RegisterScreen = ({ navigation, route }) => {
       }
 
       await register(registrationData);
-      Alert.alert('Thành công', 'Đăng ký thành công! Chào mừng bạn đến với TutorConnect.', [{ text: 'OK' }]);
+      Alert.alert('Success', 'Registration successful! Welcome to TutorConnect.', [{ text: 'OK' }]);
     } catch (error) {
-      let errorMessage = 'Đăng ký thất bại. Vui lòng thử lại.';
+      let errorMessage = 'Registration failed. Please try again.';
       if (error.message.includes('email') && error.message.includes('already exists')) {
-        errorMessage = 'Email này đã được sử dụng. Vui lòng chọn email khác.';
+        errorMessage = 'Email already exists. Please choose a different email.';
       } else if (error.message.includes('username') && error.message.includes('already exists')) {
-        errorMessage = 'Tên đăng nhập này đã được sử dụng. Vui lòng chọn tên khác.';
+        errorMessage = 'Username already exists. Please choose a different username.';
       } else if (error.message.includes('phone') && error.message.includes('already exists')) {
-        errorMessage = 'Số điện thoại này đã được sử dụng.';
+        errorMessage = 'Phone number already exists.';
       } else if (error.message.includes('password')) {
-        errorMessage = 'Mật khẩu không đủ mạnh. Vui lòng chọn mật khẩu khác.';
+        errorMessage = 'Password is too weak. Please choose a different password.';
       } else if (error.message.includes('Network')) {
-        errorMessage = 'Lỗi kết nối mạng. Vui lòng thử lại.';
+        errorMessage = 'Network error. Please try again.';
       }
-      Alert.alert('Lỗi đăng ký', errorMessage);
+      Alert.alert('Error', errorMessage);
     }
   };
 
@@ -232,12 +256,12 @@ const RegisterScreen = ({ navigation, route }) => {
             <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()} disabled={isLoading}>
               <Icon name="arrow-back" size={24} color="#2563eb" />
             </TouchableOpacity>
-            <Text style={styles.title}>Tạo tài khoản</Text>
+            <Text style={styles.title}>Create Account</Text>
           </View>
 
           {/* User Type Selector */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Loại tài khoản</Text>
+            <Text style={styles.sectionTitle}>User Type</Text>
             <View style={styles.userTypeButtons}>
               <TouchableOpacity
                 style={[styles.userTypeButton, userType === 'student' && styles.userTypeButtonActive]}
@@ -245,7 +269,7 @@ const RegisterScreen = ({ navigation, route }) => {
                 disabled={isLoading}
               >
                 <Text style={[styles.userTypeButtonText, userType === 'student' && styles.userTypeButtonTextActive]}>
-                  Học sinh
+                  Student
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -254,7 +278,7 @@ const RegisterScreen = ({ navigation, route }) => {
                 disabled={isLoading}
               >
                 <Text style={[styles.userTypeButtonText, userType === 'tutor' && styles.userTypeButtonTextActive]}>
-                  Gia sư
+                  Tutor
                 </Text>
               </TouchableOpacity>
             </View>
@@ -262,23 +286,23 @@ const RegisterScreen = ({ navigation, route }) => {
 
           {/* Basic Info */}
           <View style={styles.section}>
-            <Text style={styles.sectionTitle}>Thông tin cơ bản</Text>
+            <Text style={styles.sectionTitle}>Personal Information</Text>
             <View style={styles.row}>
               <View style={[styles.inputContainer, { flex: 1, marginRight: 8 }]}>
-                <Text style={styles.label}>Họ *</Text>
+                <Text style={styles.label}>First Name *</Text>
                 <TextInput
                   style={[styles.input, error && styles.inputError]}
-                  placeholder="Nguyễn"
+                  placeholder="Bill"
                   value={formData.lastName}
                   onChangeText={value => updateFormData('lastName', value)}
                   editable={!isLoading}
                 />
               </View>
               <View style={[styles.inputContainer, { flex: 1, marginLeft: 8 }]}>
-                <Text style={styles.label}>Tên *</Text>
+                <Text style={styles.label}>Last Name *</Text>
                 <TextInput
                   style={[styles.input, error && styles.inputError]}
-                  placeholder="Văn A"
+                  placeholder="Ng"
                   value={formData.firstName}
                   onChangeText={value => updateFormData('firstName', value)}
                   editable={!isLoading}
@@ -287,10 +311,10 @@ const RegisterScreen = ({ navigation, route }) => {
             </View>
 
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Tên đăng nhập *</Text>
+              <Text style={styles.label}>Username *</Text>
               <TextInput
                 style={[styles.input, error && styles.inputError]}
-                placeholder="nguyenvana"
+                placeholder="billng123"
                 value={formData.username}
                 onChangeText={value => updateFormData('username', value)}
                 autoCapitalize="none"
@@ -314,7 +338,7 @@ const RegisterScreen = ({ navigation, route }) => {
             </View>
 
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Mật khẩu *</Text>
+              <Text style={styles.label}>Password *</Text>
               <View style={[styles.passwordContainer, error && styles.inputError]}>
                 <TextInput
                   style={styles.passwordInput}
@@ -333,7 +357,7 @@ const RegisterScreen = ({ navigation, route }) => {
             </View>
 
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Xác nhận mật khẩu *</Text>
+              <Text style={styles.label}>Confirm Password *</Text>
               <View style={[styles.passwordContainer, error && styles.inputError]}>
                 <TextInput
                   style={styles.passwordInput}
@@ -352,10 +376,10 @@ const RegisterScreen = ({ navigation, route }) => {
             </View>
 
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>Số điện thoại *</Text>
+              <Text style={styles.label}>Phone Number *</Text>
               <TextInput
                 style={[styles.input, error && styles.inputError]}
-                placeholder="0123456789"
+                placeholder="1234 5678"
                 value={formData.phone}
                 onChangeText={value => updateFormData('phone', value)}
                 keyboardType="phone-pad"
@@ -365,10 +389,10 @@ const RegisterScreen = ({ navigation, route }) => {
             </View>
 
             <View style={styles.inputContainer}>
-              <Text style={styles.label}>{userType === 'student' ? 'Trường học hiện tại *' : 'Học vấn (Trường - Chuyên ngành) *'}</Text>
+              <Text style={styles.label}>{userType === 'student' ? 'Current School *' : 'Education (School - Major) *'}</Text>
               <TextInput
                 style={[styles.input, error && styles.inputError]}
-                placeholder={userType === 'student' ? 'THPT Nguyễn Huệ' : 'ĐHBK Hà Nội - Công nghệ Thông tin'}
+                placeholder={userType === 'student' ? 'Raffles Institution' : 'NUS - Computer Science'}
                 value={userType === 'student' ? formData.school : formData.education}
                 onChangeText={value => updateFormData(userType === 'student' ? 'school' : 'education', value)}
                 editable={!isLoading}
@@ -379,26 +403,27 @@ const RegisterScreen = ({ navigation, route }) => {
           {/* Student fields */}
           {userType === 'student' && (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Thông tin học tập</Text>
+              <Text style={styles.sectionTitle}>Student Information</Text>
               <View style={styles.inputContainer}>
-                <Text style={styles.label}>Lớp</Text>
+                <Text style={styles.label}>Grade</Text>
                 <View style={styles.gradeContainer}>
-                  {['10', '11', '12'].map(grade => (
+                  
+                  {['Sec 1', 'Sec 2', 'Sec 3', 'Sec 4', 'JC 1', 'JC 2'].map(grade => (
                     <TouchableOpacity
                       key={grade}
                       style={[styles.gradeOption, formData.grade === grade && styles.gradeOptionActive]}
                       onPress={() => updateFormData('grade', grade)}
                       disabled={isLoading}
                     >
-                      <Text style={[styles.gradeOptionText, formData.grade === grade && styles.gradeOptionTextActive]}>Lớp {grade}</Text>
+                      <Text style={[styles.gradeOptionText, formData.grade === grade && styles.gradeOptionTextActive]}>{grade}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
               </View>
               <View style={styles.inputContainer}>
-                <Text style={styles.label}>Mục tiêu học tập</Text>
+                <Text style={styles.label}>Learning Goals</Text>
                 <View style={styles.checkboxContainer}>
-                  {['Thi THPTQG', 'Thi chuyên', 'Học bổ trợ', 'Thi đại học'].map(goal => (
+                  {['O Levels', 'A Levels', 'IB'].map(goal => (
                     <TouchableOpacity
                       key={goal}
                       style={styles.checkboxItem}
@@ -417,16 +442,16 @@ const RegisterScreen = ({ navigation, route }) => {
           {/* --- TUTOR FIELDS --- */}
           {userType === 'tutor' && (
             <View style={styles.section}>
-              <Text style={styles.sectionTitle}>Thông tin chuyên môn</Text>
+              <Text style={styles.sectionTitle}>Tutor Information</Text>
 
               {/* Achievements */}
               <View style={styles.inputContainer}>
-                <Text style={styles.label}>Thành tích nổi bật (Top 3)</Text>
+                <Text style={styles.label}>Top 3 Achievements</Text>
                 {formData.achievements.map((a, idx) => (
                   <View key={idx} style={styles.rowCentered}>
                     <TextInput
                       style={[styles.input, { flex: 1 }]}
-                      placeholder={`Thành tích #${idx + 1}`}
+                      placeholder={`Achievement #${idx + 1}`}
                       value={a}
                       onChangeText={value => {
                         const updated = [...formData.achievements];
@@ -455,15 +480,15 @@ const RegisterScreen = ({ navigation, route }) => {
                     disabled={isLoading}
                     style={styles.addButton}
                   >
-                    <Text style={styles.addButtonText}>+ Thêm thành tích</Text>
+                    <Text style={styles.addButtonText}>+ Add Achievement</Text>
                   </TouchableOpacity>
                 )}
-                <Text style={styles.fieldDescription}>Thêm các thành tích quan trọng nhất của bạn. Top 3 sẽ được hiển thị nổi bật trên hồ sơ.</Text>
+                <Text style={styles.fieldDescription}>Add your top 3 achievements. These will be prominently displayed on your profile.</Text>
               </View>
 
               {/* Class Levels */}
               <View style={styles.inputContainer}>
-                <Text style={styles.label}>Các lớp nhận dạy:</Text>
+                <Text style={styles.label}>Classes Teaching:</Text>
                 <View style={styles.checkboxContainer}>
                   {CLASS_LEVELS.map(level => (
                     <TouchableOpacity
@@ -486,7 +511,7 @@ const RegisterScreen = ({ navigation, route }) => {
 
               {/* Subjects and Level */}
               <View style={styles.inputContainer}>
-                <Text style={styles.label}>Các môn dạy:</Text>
+                <Text style={styles.label}>Subjects Teaching:</Text>
                 {formData.subjects.map((item, idx) => (
                   <View key={idx} style={[styles.rowCentered, { marginBottom: 12 }]}>
                     {/* Subject Dropdown */}
@@ -506,7 +531,7 @@ const RegisterScreen = ({ navigation, route }) => {
                           if (updated[idx]) updated[idx].name = newName;
                           updateFormData('subjects', updated);
                         }}
-                        placeholder="Chọn môn"
+                        placeholder="Select Subject"
                         style={styles.dropdown}
                         containerStyle={{ height: dropdownOpen[idx] ? 150 : 50 }}
                         zIndex={1000 - idx}
@@ -554,7 +579,7 @@ const RegisterScreen = ({ navigation, route }) => {
                   disabled={isLoading || formData.subjects.length >= 10}
                   style={styles.addButton}
                 >
-                  <Text style={styles.addButtonText}>+ Thêm môn</Text>
+                  <Text style={styles.addButtonText}>+ Add Subject</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -564,22 +589,22 @@ const RegisterScreen = ({ navigation, route }) => {
                 <>
                   {/* Pricing UI */}
                   <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Cài đặt giá dạy (VND/giờ)</Text>
+                    <Text style={styles.label}>Set prices (SGD/hour)</Text>
                     <View style={styles.radioContainer}>
                       <TouchableOpacity style={styles.radioOption} onPress={() => updateFormData('useSamePrice', true)} disabled={isLoading}>
                         <Icon name={formData.useSamePrice ? 'radio-button-checked' : 'radio-button-unchecked'} size={20} color="#2563eb" />
-                        <Text style={styles.radioText}>Dùng 1 giá cho tất cả</Text>
+                        <Text style={styles.radioText}>Use same price for all subjects</Text>
                       </TouchableOpacity>
                       <TouchableOpacity style={styles.radioOption} onPress={() => updateFormData('useSamePrice', false)} disabled={isLoading}>
                         <Icon name={!formData.useSamePrice ? 'radio-button-checked' : 'radio-button-unchecked'} size={20} color="#2563eb" />
-                        <Text style={styles.radioText}>Giá riêng cho từng môn</Text>
+                        <Text style={styles.radioText}>Set different prices for each subject</Text>
                       </TouchableOpacity>
                     </View>
 
                     {formData.useSamePrice ? (
                       <TextInput
                         style={styles.input}
-                        placeholder="Nhập giá chung (VND/giờ)"
+                        placeholder="Enter single price (SGD/hour)"
                         value={formData.singlePrice}
                         keyboardType="numeric"
                         onChangeText={value => {
@@ -599,7 +624,7 @@ const RegisterScreen = ({ navigation, route }) => {
                             <Text style={styles.priceLabel}>{item.name} - {item.level}</Text>
                             <TextInput
                               style={styles.priceInput}
-                              placeholder="Giá (VND)"
+                              placeholder="Enter price (SGD)"
                               keyboardType="numeric"
                               value={formData.prices[`${item.name}_${item.level}`] ? String(formData.prices[`${item.name}_${item.level}`]) : ''}
                               onChangeText={value => {
@@ -617,10 +642,10 @@ const RegisterScreen = ({ navigation, route }) => {
 
                   {/* Bio */}
                   <View style={styles.inputContainer}>
-                    <Text style={styles.label}>Giới thiệu bản thân</Text>
+                    <Text style={styles.label}>Bio</Text>
                     <TextInput
                       style={[styles.input, styles.textArea, error && styles.inputError]}
-                      placeholder="Chia sẻ về kinh nghiệm và phương pháp dạy của bạn..."
+                      placeholder="Share about your experience and teaching methods..."
                       value={formData.bio}
                       onChangeText={value => updateFormData('bio', value)}
                       multiline
@@ -648,10 +673,10 @@ const RegisterScreen = ({ navigation, route }) => {
             {isLoading ? (
               <View style={styles.loadingContainer}>
                 <ActivityIndicator color="white" size="small" />
-                <Text style={styles.submitButtonText}>Đang tạo tài khoản...</Text>
+                <Text style={styles.submitButtonText}>Creating account...</Text>
               </View>
             ) : (
-              <Text style={styles.submitButtonText}>Tạo tài khoản</Text>
+              <Text style={styles.submitButtonText}>Create Account</Text>
             )}
           </TouchableOpacity>
 
@@ -661,7 +686,7 @@ const RegisterScreen = ({ navigation, route }) => {
             disabled={isLoading}
           >
             <Text style={[styles.loginButtonText, isLoading && styles.loginButtonTextDisabled]}>
-              Đã có tài khoản? Đăng nhập
+              {t('auth.alreadyHaveAccount', 'Already have an account? Login')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -669,562 +694,6 @@ const RegisterScreen = ({ navigation, route }) => {
     </KeyboardAvoidingView>
   );
 };
-
-
-// // src/screens/Auth/RegisterScreen.js
-// import React, { useState, useEffect } from 'react';
-// import {
-//   View,
-//   Text,
-//   TextInput,
-//   TouchableOpacity,
-//   StyleSheet,
-//   ScrollView,
-//   Alert,
-//   KeyboardAvoidingView,
-//   Platform,
-//   ActivityIndicator,
-// } from 'react-native';
-// import Icon from 'react-native-vector-icons/MaterialIcons';
-// import { useAuth } from '../../context/AuthContext.js';
-
-// const RegisterScreen = ({ navigation, route }) => {
-//   // Get userType from route params or default to 'student'
-//   const [userType, setUserType] = useState(route.params?.userType || 'student');
-  
-//   const [formData, setFormData] = useState({
-//     // Basic user fields
-//     username: '',
-//     email: '',
-//     password: '',
-//     passwordConfirm: '',
-//     phone: '',
-//     firstName: '',
-//     lastName: '',
-    
-//     // Profile-specific fields
-//     school: '',
-//     grade: '10', // Default to '10' to match backend choices
-//     learningGoals: [],
-//     major: '',
-//     experienceYears: '0-1', // Default to match backend choices
-//     bio: '',
-//     hourlyRate: '',
-//     location: 'hanoi', // Default location
-//   });
-
-//   const [showPassword, setShowPassword] = useState(false);
-//   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
-
-//   const { register, isLoading, error, clearError, isAuthenticated } = useAuth();
-
-//   // Navigate to main app if already authenticated
-//   useEffect(() => {
-//     if (isAuthenticated) {
-//       navigation.replace('MainApp');
-//     }
-//   }, [isAuthenticated, navigation]);
-
-//   // Clear error when form data changes
-//   useEffect(() => {
-//     clearError();
-//   }, [formData, userType]);
-
-//   // Helper function to update form data
-//   const updateFormData = (field, value) => {
-//     setFormData(prev => ({ ...prev, [field]: value }));
-//   };
-
-//   // Helper function to toggle learning goals for students
-//   const toggleLearningGoal = (goal) => {
-//     setFormData(prev => ({
-//       ...prev,
-//       learningGoals: prev.learningGoals.includes(goal)
-//         ? prev.learningGoals.filter(g => g !== goal)
-//         : [...prev.learningGoals, goal]
-//     }));
-//   };
-
-//   // Validation function
-//   const validateForm = () => {
-//     // Basic validation
-//     if (!formData.firstName.trim()) {
-//       Alert.alert('Lỗi', 'Vui lòng nhập tên');
-//       return false;
-//     }
-
-//     if (!formData.lastName.trim()) {
-//       Alert.alert('Lỗi', 'Vui lòng nhập họ');
-//       return false;
-//     }
-
-//     if (!formData.email.trim()) {
-//       Alert.alert('Lỗi', 'Vui lòng nhập email');
-//       return false;
-//     }
-
-//     // Email validation
-//     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-//     if (!emailRegex.test(formData.email.trim())) {
-//       Alert.alert('Lỗi', 'Email không hợp lệ');
-//       return false;
-//     }
-
-//     if (!formData.username.trim()) {
-//       Alert.alert('Lỗi', 'Vui lòng nhập tên đăng nhập');
-//       return false;
-//     }
-
-//     if (formData.password.length < 6) {
-//       Alert.alert('Lỗi', 'Mật khẩu phải có ít nhất 6 ký tự');
-//       return false;
-//     }
-
-//     if (formData.password !== formData.passwordConfirm) {
-//       Alert.alert('Lỗi', 'Mật khẩu xác nhận không khớp');
-//       return false;
-//     }
-
-//     if (!formData.phone.trim()) {
-//       Alert.alert('Lỗi', 'Vui lòng nhập số điện thoại');
-//       return false;
-//     }
-
-//     // Phone validation (10 digits)
-//     const phoneRegex = /^\d{10}$/;
-//     if (!phoneRegex.test(formData.phone.trim())) {
-//       Alert.alert('Lỗi', 'Số điện thoại phải có đúng 10 chữ số');
-//       return false;
-//     }
-
-//     if (!formData.school.trim()) {
-//       Alert.alert('Lỗi', userType === 'student' ? 'Vui lòng nhập trường học' : 'Vui lòng nhập trường đại học');
-//       return false;
-//     }
-
-//     // Tutor-specific validation
-//     if (userType === 'tutor') {
-//       if (!formData.major.trim()) {
-//         Alert.alert('Lỗi', 'Vui lòng nhập chuyên ngành');
-//         return false;
-//       }
-
-//       if (!formData.hourlyRate.trim()) {
-//         Alert.alert('Lỗi', 'Vui lòng nhập mức phí theo giờ');
-//         return false;
-//       }
-
-//       const hourlyRate = parseFloat(formData.hourlyRate);
-//       if (isNaN(hourlyRate) || hourlyRate <= 0) {
-//         Alert.alert('Lỗi', 'Mức phí phải là số dương');
-//         return false;
-//       }
-//     }
-
-//     return true;
-//   };
-
-//   const handleRegister = async () => {
-//     if (!validateForm()) {
-//       return;
-//     }
-
-//     try {
-//       // Prepare the registration data according to Django backend structure
-//       const registrationData = {
-//         username: formData.username.trim(),
-//         email: formData.email.trim().toLowerCase(),
-//         password: formData.password,
-//         password_confirm: formData.passwordConfirm,
-//         phone: formData.phone.trim(),
-//         first_name: formData.firstName.trim(),
-//         last_name: formData.lastName.trim(),
-//         user_type: userType,
-//         profile_data: {}
-//       };
-
-//       // Add profile-specific data based on user type
-//       if (userType === 'student') {
-//         registrationData.profile_data = {
-//           school: formData.school.trim(),
-//           grade: formData.grade,
-//           learning_goals: formData.learningGoals,
-//           location: formData.location,
-//           // Add default budget values if needed
-//           budget_min: null,
-//           budget_max: null,
-//         };
-//       } else if (userType === 'tutor') {
-//         registrationData.profile_data = {
-//           education: formData.education.trim(),
-//           // Add default values
-//           // NEW:
-//           is_verified: false,
-//           availability: {},
-//           achievements: formData.achievements.filter(a => !!a.trim()),
-//           class_levels: formData.classLevels,
-//           subjects: formData.subjects,
-//           prices: formData.prices,
-//           bio: formData.bio.trim(),
-//           hourly_rate: Number(formData.hourlyRate) || null,
-//           location: formData.location,
-//         };
-//       }
-
-//       await register(registrationData);
-      
-//       // Registration successful, navigation will be handled by useEffect
-//       Alert.alert(
-//         'Thành công', 
-//         'Đăng ký thành công! Chào mừng bạn đến với TutorConnect.',
-//         [{ text: 'OK' }]
-//       );
-
-//     } catch (error) {
-//       // Handle registration errors
-//       let errorMessage = 'Đăng ký thất bại. Vui lòng thử lại.';
-//       console.log('Registration error:', error);
-//       if (error.message.includes('email') && error.message.includes('already exists')) {
-//         errorMessage = 'Email này đã được sử dụng. Vui lòng chọn email khác.';
-//       } else if (error.message.includes('username') && error.message.includes('already exists')) {
-//         errorMessage = 'Tên đăng nhập này đã được sử dụng. Vui lòng chọn tên khác.';
-//       } else if (error.message.includes('phone') && error.message.includes('already exists')) {
-//         errorMessage = 'Số điện thoại này đã được sử dụng.';
-//       } else if (error.message.includes('password')) {
-//         errorMessage = 'Mật khẩu không đủ mạnh. Vui lòng chọn mật khẩu khác.';
-//       } else if (error.message.includes('Network')) {
-//         errorMessage = 'Lỗi kết nối mạng. Vui lòng thử lại.';
-//       }
-      
-//       Alert.alert('Lỗi đăng ký', errorMessage);
-//     }
-//   };
-
-//   return (
-//     <KeyboardAvoidingView 
-//       style={styles.container}
-//       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-//     >
-//       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-//         <View style={styles.content}>
-//           {/* Header */}
-//           <View style={styles.header}>
-//             <TouchableOpacity
-//               style={styles.backButton}
-//               onPress={() => navigation.goBack()}
-//               disabled={isLoading}
-//             >
-//               <Icon name="arrow-back" size={24} color="#2563eb" />
-//             </TouchableOpacity>
-//             <Text style={styles.title}>Tạo tài khoản</Text>
-//           </View>
-
-//           {/* User Type Selector */}
-//           <View style={styles.section}>
-//             <Text style={styles.sectionTitle}>Loại tài khoản</Text>
-//             <View style={styles.userTypeButtons}>
-//               <TouchableOpacity
-//                 style={[
-//                   styles.userTypeButton,
-//                   userType === 'student' && styles.userTypeButtonActive
-//                 ]}
-//                 onPress={() => setUserType('student')}
-//                 disabled={isLoading}
-//               >
-//                 <Text style={[
-//                   styles.userTypeButtonText,
-//                   userType === 'student' && styles.userTypeButtonTextActive
-//                 ]}>
-//                   Học sinh
-//                 </Text>
-//               </TouchableOpacity>
-//               <TouchableOpacity
-//                 style={[
-//                   styles.userTypeButton,
-//                   userType === 'tutor' && styles.userTypeButtonActive
-//                 ]}
-//                 onPress={() => setUserType('tutor')}
-//                 disabled={isLoading}
-//               >
-//                 <Text style={[
-//                   styles.userTypeButtonText,
-//                   userType === 'tutor' && styles.userTypeButtonTextActive
-//                 ]}>
-//                   Gia sư
-//                 </Text>
-//               </TouchableOpacity>
-//             </View>
-//           </View>
-
-//           {/* Basic Information */}
-//           <View style={styles.section}>
-//             <Text style={styles.sectionTitle}>Thông tin cơ bản</Text>
-            
-//             <View style={styles.row}>
-//               <View style={[styles.inputContainer, { flex: 1, marginRight: 8 }]}>
-//                 <Text style={styles.label}>Họ *</Text>
-//                 <TextInput
-//                   style={[styles.input, error && styles.inputError]}
-//                   placeholder="Nguyễn"
-//                   value={formData.lastName}
-//                   onChangeText={(value) => updateFormData('lastName', value)}
-//                   editable={!isLoading}
-//                 />
-//               </View>
-//               <View style={[styles.inputContainer, { flex: 1, marginLeft: 8 }]}>
-//                 <Text style={styles.label}>Tên *</Text>
-//                 <TextInput
-//                   style={[styles.input, error && styles.inputError]}
-//                   placeholder="Văn A"
-//                   value={formData.firstName}
-//                   onChangeText={(value) => updateFormData('firstName', value)}
-//                   editable={!isLoading}
-//                 />
-//               </View>
-//             </View>
-
-//             <View style={styles.inputContainer}>
-//               <Text style={styles.label}>Tên đăng nhập *</Text>
-//               <TextInput
-//                 style={[styles.input, error && styles.inputError]}
-//                 placeholder="nguyenvana"
-//                 value={formData.username}
-//                 onChangeText={(value) => updateFormData('username', value)}
-//                 autoCapitalize="none"
-//                 autoCorrect={false}
-//                 editable={!isLoading}
-//               />
-//             </View>
-
-//             <View style={styles.inputContainer}>
-//               <Text style={styles.label}>Email *</Text>
-//               <TextInput
-//                 style={[styles.input, error && styles.inputError]}
-//                 placeholder="email@example.com"
-//                 value={formData.email}
-//                 onChangeText={(value) => updateFormData('email', value)}
-//                 keyboardType="email-address"
-//                 autoCapitalize="none"
-//                 autoCorrect={false}
-//                 editable={!isLoading}
-//               />
-//             </View>
-
-//             <View style={styles.inputContainer}>
-//               <Text style={styles.label}>Mật khẩu *</Text>
-//               <View style={[styles.passwordContainer, error && styles.inputError]}>
-//                 <TextInput
-//                   style={styles.passwordInput}
-//                   placeholder="••••••••"
-//                   value={formData.password}
-//                   onChangeText={(value) => updateFormData('password', value)}
-//                   secureTextEntry={!showPassword}
-//                   textContentType="none"
-//                   autoComplete="off"
-//                   editable={!isLoading}
-//                 />
-//                 <TouchableOpacity
-//                   style={styles.eyeButton}
-//                   onPress={() => setShowPassword(!showPassword)}
-//                   disabled={isLoading}
-//                 >
-//                   <Icon 
-//                     name={showPassword ? 'visibility-off' : 'visibility'} 
-//                     size={20} 
-//                     color="#6b7280" 
-//                   />
-//                 </TouchableOpacity>
-//               </View>
-//             </View>
-
-//             <View style={styles.inputContainer}>
-//               <Text style={styles.label}>Xác nhận mật khẩu *</Text>
-//               <View style={[styles.passwordContainer, error && styles.inputError]}>
-//                 <TextInput
-//                   style={styles.passwordInput}
-//                   placeholder="••••••••"
-//                   value={formData.passwordConfirm}
-//                   onChangeText={(value) => updateFormData('passwordConfirm', value)}
-//                   secureTextEntry={!showPasswordConfirm}
-//                   textContentType="none"
-//                   autoComplete="off"
-//                   editable={!isLoading}
-//                 />
-//                 <TouchableOpacity
-//                   style={styles.eyeButton}
-//                   onPress={() => setShowPasswordConfirm(!showPasswordConfirm)}
-//                   disabled={isLoading}
-//                 >
-//                   <Icon 
-//                     name={showPasswordConfirm ? 'visibility-off' : 'visibility'} 
-//                     size={20} 
-//                     color="#6b7280" 
-//                   />
-//                 </TouchableOpacity>
-//               </View>
-//             </View>
-
-//             <View style={styles.inputContainer}>
-//               <Text style={styles.label}>Số điện thoại *</Text>
-//               <TextInput
-//                 style={[styles.input, error && styles.inputError]}
-//                 placeholder="0123456789"
-//                 value={formData.phone}
-//                 onChangeText={(value) => updateFormData('phone', value)}
-//                 keyboardType="phone-pad"
-//                 maxLength={10}
-//                 editable={!isLoading}
-//               />
-//             </View>
-
-//             <View style={styles.inputContainer}>
-//               <Text style={styles.label}>
-//                 {userType === 'student' ? 'Trường học hiện tại *' : 'Trường đại học *'}
-//               </Text>
-//               <TextInput
-//                 style={[styles.input, error && styles.inputError]}
-//                 placeholder={userType === 'student' ? 'THPT Nguyễn Huệ' : 'Đại học Bách Khoa Hà Nội'}
-//                 value={formData.school}
-//                 onChangeText={(value) => updateFormData('school', value)}
-//                 editable={!isLoading}
-//               />
-//             </View>
-//           </View>
-
-//           {/* Student-specific fields */}
-//           {userType === 'student' && (
-//             <View style={styles.section}>
-//               <Text style={styles.sectionTitle}>Thông tin học tập</Text>
-              
-//               <View style={styles.inputContainer}>
-//                 <Text style={styles.label}>Lớp</Text>
-//                 <View style={styles.gradeContainer}>
-//                   {['10', '11', '12'].map((grade) => (
-//                     <TouchableOpacity
-//                       key={grade}
-//                       style={[
-//                         styles.gradeOption,
-//                         formData.grade === grade && styles.gradeOptionActive
-//                       ]}
-//                       onPress={() => updateFormData('grade', grade)}
-//                       disabled={isLoading}
-//                     >
-//                       <Text style={[
-//                         styles.gradeOptionText,
-//                         formData.grade === grade && styles.gradeOptionTextActive
-//                       ]}>
-//                         Lớp {grade}
-//                       </Text>
-//                     </TouchableOpacity>
-//                   ))}
-//                 </View>
-//               </View>
-
-//               <View style={styles.inputContainer}>
-//                 <Text style={styles.label}>Mục tiêu học tập</Text>
-//                 <View style={styles.checkboxContainer}>
-//                   {['Thi THPTQG', 'Thi chuyên', 'Học bổ trợ', 'Thi đại học'].map((goal) => (
-//                     <TouchableOpacity
-//                       key={goal}
-//                       style={styles.checkboxItem}
-//                       onPress={() => toggleLearningGoal(goal)}
-//                       disabled={isLoading}
-//                     >
-//                       <Icon
-//                         name={formData.learningGoals.includes(goal) ? 'check-box' : 'check-box-outline-blank'}
-//                         size={20}
-//                         color="#2563eb"
-//                       />
-//                       <Text style={styles.checkboxText}>{goal}</Text>
-//                     </TouchableOpacity>
-//                   ))}
-//                 </View>
-//               </View>
-//             </View>
-//           )}
-
-//           {/* Tutor-specific fields */}
-//           {userType === 'tutor' && (
-//             <View style={styles.section}>
-//               <Text style={styles.sectionTitle}>Thông tin chuyên môn</Text>
-              
-//               <View style={styles.inputContainer}>
-//                 <Text style={styles.label}>Học vấn *</Text>
-//                   <TextInput
-//                     style={styles.input}
-//                     placeholder="ĐHBK Hà Nội - CNTT"
-//                     value={formData.education}
-//                     onChangeText={value => updateFormData('education', value)}
-//                     editable={!isLoading}
-//                   />
-//               </View>
-
-//               <View style={styles.inputContainer}>
-//                 <Text style={styles.label}>Mức phí theo giờ (VNĐ) *</Text>
-//                 <TextInput
-//                   style={[styles.input, error && styles.inputError]}
-//                   placeholder="150000"
-//                   value={formData.hourlyRate}
-//                   onChangeText={(value) => updateFormData('hourlyRate', value)}
-//                   keyboardType="numeric"
-//                   editable={!isLoading}
-//                 />
-//               </View>
-              
-
-//               <View style={styles.inputContainer}>
-//                 <Text style={styles.label}>Giới thiệu bản thân</Text>
-//                 <TextInput
-//                   style={[styles.input, styles.textArea, error && styles.inputError]}
-//                   placeholder="Chia sẻ về kinh nghiệm và phương pháp dạy của bạn..."
-//                   value={formData.bio}
-//                   onChangeText={(value) => updateFormData('bio', value)}
-//                   multiline
-//                   numberOfLines={4}
-//                   textAlignVertical="top"
-//                   editable={!isLoading}
-//                 />
-//               </View>
-//             </View>
-//           )}
-
-//           {/* Error Message */}
-//           {error && (
-//             <View style={styles.errorContainer}>
-//               <Icon name="error" size={16} color="#dc2626" />
-//               <Text style={styles.errorText}>{error}</Text>
-//             </View>
-//           )}
-
-//           <TouchableOpacity
-//             style={[styles.submitButton, isLoading && styles.submitButtonDisabled]}
-//             onPress={handleRegister}
-//             disabled={isLoading}
-//           >
-//             {isLoading ? (
-//               <View style={styles.loadingContainer}>
-//                 <ActivityIndicator color="white" size="small" />
-//                 <Text style={styles.submitButtonText}>Đang tạo tài khoản...</Text>
-//               </View>
-//             ) : (
-//               <Text style={styles.submitButtonText}>Tạo tài khoản</Text>
-//             )}
-//           </TouchableOpacity>
-
-//           <TouchableOpacity
-//             style={[styles.loginButton, isLoading && styles.loginButtonDisabled]}
-//             onPress={() => navigation.navigate('Login')}
-//             disabled={isLoading}
-//           >
-//             <Text style={[styles.loginButtonText, isLoading && styles.loginButtonTextDisabled]}>
-//               Đã có tài khoản? Đăng nhập
-//             </Text>
-//           </TouchableOpacity>
-//         </View>
-//       </ScrollView>
-//     </KeyboardAvoidingView>
-//   );
-// };
 
 const styles = StyleSheet.create({
   // --- NEW STYLES for Tutor Fields ---

@@ -9,6 +9,8 @@ from rest_framework.permissions import IsAuthenticated
 from api.models import TutorProfile, TutorView
 from api.serializers import TutorDetailSerializer
 
+# View individual tutor profile
+
 
 # Detail view for an individual tutor, tracks student views
 class TutorDetailView(generics.RetrieveAPIView):
@@ -18,7 +20,7 @@ class TutorDetailView(generics.RetrieveAPIView):
     """
     serializer_class = TutorDetailSerializer  # Serializes tutor detail data (see serializers/tutor.py)
     permission_classes = [IsAuthenticated]  # Only authenticated users can access
-    lookup_field = 'id'  # Lookup tutor by UUID 'id' field
+    lookup_field = 'uuid'  # Lookup tutor by UUID 'uuid' field
 
     def get_queryset(self):
         """

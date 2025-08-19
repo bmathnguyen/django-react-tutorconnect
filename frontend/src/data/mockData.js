@@ -97,34 +97,33 @@ export const mockTutors = [
     isSaved: false
   }
 ];
-
 export const mockChatRooms = [
   {
     id: 1,
     tutorId: 1,
-    tutorName: 'Nguyễn Thị Anh',
-    tutorAvatar: '👩‍🏫',
-    lastMessage: 'Em có thể học vào tối thứ 3 không?',
-    lastMessageTime: '14:30',
-    unreadCount: 2
+    tutorName: 'Tan Jia Hui',
+    tutorAvatar: '👩🏻‍🏫',
+    lastMessage: 'You ready for A-Math revision this Friday?',
+    lastMessageTime: '21:05',
+    unreadCount: 1
   },
   {
     id: 2,
     tutorId: 2,
-    tutorName: 'Trần Văn Bình',
-    tutorAvatar: '👨‍🏫',
-    lastMessage: 'Tôi sẽ gửi bài tập cho em',
-    lastMessageTime: '12:15',
+    tutorName: 'Lim Wei Kiat',
+    tutorAvatar: '👨🏻‍🏫',
+    lastMessage: 'Remember to practise the compo draft.',
+    lastMessageTime: '20:12',
     unreadCount: 0
   },
   {
     id: 3,
     tutorId: 3,
-    tutorName: 'Lê Thị Cẩm',
-    tutorAvatar: '👩‍🏫',
-    lastMessage: 'Buổi học hôm nay rất tốt!',
-    lastMessageTime: '09:45',
-    unreadCount: 1
+    tutorName: 'Ng Mei Ting',
+    tutorAvatar: '👩🏻‍🏫',
+    lastMessage: 'See you at Jurong Library tmr!',
+    lastMessageTime: '18:30',
+    unreadCount: 3
   }
 ];
 
@@ -132,64 +131,57 @@ export const mockMessages = [
   {
     id: 1,
     tutorId: 1,
-    text: 'Chào em! Em có muốn học Toán không?',
+    text: 'Hi! This week we cover Indices and Surds. Can?',
     sender: 'tutor',
-    time: '14:00'
+    time: '20:45'
   },
   {
     id: 2,
     tutorId: 1,
-    text: 'Dạ chào cô! Em muốn học Toán ạ',
+    text: 'Sure, Ms Tan. I need help with those topics!',
     sender: 'student',
-    time: '14:05'
+    time: '20:48'
   },
   {
     id: 3,
     tutorId: 1,
-    text: 'Em có thể học vào tối thứ 3 không?',
-    sender: 'student',
-    time: '14:30'
+    text: 'You ready for A-Math revision this Friday?',
+    sender: 'tutor',
+    time: '21:05'
   },
   {
     id: 4,
     tutorId: 2,
-    text: 'Chào em! Em có muốn học Văn không?',
-    sender: 'tutor',
-    time: '12:00'
+    text: 'Wei Kiat, can you send me the compo sample?',
+    sender: 'student',
+    time: '19:55'
   },
   {
     id: 5,
     tutorId: 2,
-    text: 'Dạ em muốn học Văn ạ',
-    sender: 'student',
-    time: '12:10'
+    text: 'Yup, I sent already. Remember to practise the compo draft.',
+    sender: 'tutor',
+    time: '20:12'
   },
   {
     id: 6,
-    tutorId: 2,
-    text: 'Tôi sẽ gửi bài tập cho em',
-    sender: 'tutor',
-    time: '12:15'
+    tutorId: 3,
+    text: 'Hi Mei Ting, do we meet at Jurong Library again?',
+    sender: 'student',
+    time: '18:10'
   },
   {
     id: 7,
     tutorId: 3,
-    text: 'Chào em! Em có muốn học tiếng Anh không?',
+    text: 'Yes! Same spot, 3rd floor. See you at Jurong Library tmr!',
     sender: 'tutor',
-    time: '09:30'
+    time: '18:30'
   },
   {
     id: 8,
     tutorId: 3,
-    text: 'Dạ em muốn học IELTS ạ',
+    text: 'Thank you, teacher!',
     sender: 'student',
-    time: '09:40'
-  },
-  {
-    id: 9,
-    tutorId: 3,
-    text: 'Buổi học hôm nay rất tốt!',
-    sender: 'tutor',
-    time: '09:45'
+    time: '18:32'
   }
-]; 
+];

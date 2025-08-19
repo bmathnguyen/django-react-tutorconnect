@@ -13,7 +13,7 @@ urlpatterns = [
     # Tutor endpoints
     path('search/tutors/', views.TutorSearchView.as_view(), name='tutor-search'),
     # path('tutors/', views.TutorListView.as_view(), name='tutor-list'),
-    path('tutors/<uuid:id>/', views.TutorDetailView.as_view(), name='tutor-detail'),
+    path('tutors/<uuid:uuid>/', views.TutorDetailView.as_view(), name='tutor-detail'),
 
     # Tutor interactions
     path('tutors/<uuid:tutor_id>/like/', views.like_tutor_view, name='like-tutor'),

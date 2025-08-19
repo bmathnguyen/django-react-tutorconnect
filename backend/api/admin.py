@@ -16,9 +16,9 @@ from api.models import (
 
 @admin.register(CustomUser)
 class UserAdmin(BaseUserAdmin):
-    list_display = ('email', 'username', 'user_type', 'is_active', 'created_at')
+    list_display = ('email', 'user_type', 'is_active', 'created_at')
     list_filter = ('user_type', 'is_active', 'created_at')
-    search_fields = ('email', 'username', 'first_name', 'last_name')
+    search_fields = ('email', 'first_name', 'last_name')
     ordering = ('-created_at',)
     
     fieldsets = BaseUserAdmin.fieldsets + (
@@ -38,10 +38,10 @@ class StudentProfileAdmin(admin.ModelAdmin):
 
 @admin.register(TutorProfile)
 class TutorProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'education', 'price_min', 'price_max', 'rating_average', 'is_verified', 'location')
+    list_display = ('user', 'education', 'price_min', 'price_max', 'rating_average', 'is_verified', 'location','uuid')
     list_filter = ('education', 'is_verified', 'location')
     ordering = ('-price_min',)
-    search_fields = ('user__email', 'education', 'location')
+    search_fields = ('user__email', 'education', 'location',)
 
 @admin.register(ChatRoom)
 class ChatRoomAdmin(admin.ModelAdmin):

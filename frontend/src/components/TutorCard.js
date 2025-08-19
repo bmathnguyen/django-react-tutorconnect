@@ -6,62 +6,103 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { useTranslation } from '../hooks/useTranslation';
 
 const TutorCard = ({ tutor, onViewProfile, onLike }) => {
+  const { t, formatPrice } = useTranslation();
+
+  // Handle undefined tutor
+  if (!tutor) {
+    return null;
+  }
+
+  // Extract tutor data with fallbacks for different API response formats
+  const tutorId = tutor.id || tutor.uuid;
+  const tutorName = tutor.name || 
+                   (tutor.user ? `${tutor.user.first_name} ${tutor.user.last_name}` : '') ||
+                   `${tutor.first_name || ''} ${tutor.last_name || ''}`.trim() ||
+                   'Tutor';
+  
+  const avatar = tutor.avatar || tutor.profile_image || '👨‍🏫';
+  const rating = tutor.rating || tutor.rating_average || '5.0';
+  const experience = tutor.experience || tutor.experience_years || 'Experience';
+  const school = tutor.school || tutor.education || tutor.university || 'School';
+  const achievements = tutor.achievements || [];
+  const subjects = tutor.subjects || [];
+  const price = tutor.price || tutor.hourly_rate || tutor.price_min || 'Contact';
+
+  // Format price with fallback
+  const formattedPrice = (() => {
+    if (price && price > 0) {
+      return formatPrice(price, 'session');
+    }
+    return t('currency.contact', 'Contact');
+  })();
+
   return (
     <View style={styles.card}>
       <View style={styles.header}>
         <View style={styles.avatarContainer}>
-          <Text style={styles.avatar}>{tutor.avatar}</Text>
+          <Text style={styles.avatar}>{avatar}</Text>
         </View>
         
         <View style={styles.info}>
           <View style={styles.nameRating}>
-            <Text style={styles.name}>{tutor.name}</Text>
+            <Text style={styles.name}>{tutorName}</Text>
             <View style={styles.rating}>
               <Icon name="star" size={16} color="#fbbf24" />
-              <Text style={styles.ratingText}>({tutor.rating})</Text>
+              <Text style={styles.ratingText}>({rating})</Text>
             </View>
           </View>
           
-          <Text style={styles.experience}>{tutor.experience}</Text>
+          <Text style={styles.experience}>{experience}</Text>
           
           <View style={styles.detail}>
             <Icon name="school" size={14} color="#6b7280" />
-            <Text style={styles.detailText}>{tutor.school}</Text>
+            <Text style={styles.detailText}>{school}</Text>
           </View>
           
-          <View style={styles.detail}>
-            <Icon name="emoji-events" size={14} color="#f59e0b" />
-            <Text style={styles.detailText}>{tutor.achievements[0]}</Text>
-          </View>
+          {achievements.length > 0 && (
+            <View style={styles.detail}>
+              <Icon name="emoji-events" size={14} color="#f59e0b" />
+              <Text style={styles.detailText}>{achievements[0].title || achievements[0]}</Text>
+            </View>
+          )}
         </View>
       </View>
       
       <View style={styles.footer}>
         <View style={styles.subjects}>
-          {tutor.subjects.map((subject, index) => (
-            <View key={index} style={styles.subjectTag}>
-              <Text style={styles.subjectText}>{subject}</Text>
+          {subjects.slice(0, 3).map((subject, index) => {
+            const subjectName = typeof subject === 'string' ? subject : subject.name || subject.title;
+            return (
+              <View key={index} style={styles.subjectTag}>
+                <Text style={styles.subjectText}>{subjectName}</Text>
+              </View>
+            );
+          })}
+          {subjects.length > 3 && (
+            <View style={styles.subjectTag}>
+              <Text style={styles.subjectText}>+{subjects.length - 3}</Text>
             </View>
-          ))}
+          )}
         </View>
-        <Text style={styles.price}>{tutor.price}</Text>
+        <Text style={styles.price}>{formattedPrice}</Text>
       </View>
       
       <View style={styles.actions}>
         <TouchableOpacity
           style={styles.viewButton}
-          onPress={onViewProfile}
+          onPress={() => onViewProfile && onViewProfile(tutorId)}
         >
-          <Text style={styles.viewButtonText}>Xem hồ sơ</Text>
+          <Text style={styles.viewButtonText}>{t('tutor.viewProfile', 'View Profile')}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.likeButton}
-          onPress={onLike}
+          onPress={() => onLike && onLike(tutorId)}
         >
           <Icon name="favorite" size={16} color="white" />
-          <Text style={styles.likeButtonText}>Yêu thích</Text>
+          <Text style={styles.likeButtonText}>{t('tutor.like', 'Like')}</Text>
         </TouchableOpacity>
       </View>
     </View>

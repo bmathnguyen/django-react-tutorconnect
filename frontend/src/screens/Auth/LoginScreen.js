@@ -13,8 +13,10 @@ import {
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useAuth } from '../../context/AuthContext.js';
+import { useTranslation } from '../../hooks/useTranslation';
 
 const LoginScreen = ({ navigation }) => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -37,19 +39,19 @@ const LoginScreen = ({ navigation }) => {
   const handleLogin = async () => {
     // Validation
     if (!email.trim()) {
-      Alert.alert('Lỗi', 'Vui lòng nhập email');
+      Alert.alert(t('common.error', 'Error'), t('login.enterEmail', 'Please enter your email'));
       return;
     }
 
     if (!password.trim()) {
-      Alert.alert('Lỗi', 'Vui lòng nhập mật khẩu');
+      Alert.alert(t('common.error', 'Error'), t('login.enterPassword', 'Please enter your password'));
       return;
     }
 
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email.trim())) {
-      Alert.alert('Lỗi', 'Email không hợp lệ');
+      Alert.alert(t('common.error', 'Error'), t('login.invalidEmail', 'Invalid email'));
       return;
     }
 
@@ -58,27 +60,29 @@ const LoginScreen = ({ navigation }) => {
       // Navigation will be handled by useEffect when isAuthenticated changes
     } catch (error) {
       // Error handling
-      let errorMessage = 'Đăng nhập thất bại';
+      let errorMessage = t('login.failed', 'Login failed');
       
       if (error.message.includes('Invalid email or password')) {
-        errorMessage = 'Email hoặc mật khẩu không đúng';
+        errorMessage = t('login.invalidCredentials', 'Invalid email or password');
       } else if (error.message.includes('Incorrect account type')) {
-        errorMessage = `Tài khoản này không phải là ${userType === 'student' ? 'học sinh' : 'gia sư'}`;
+        errorMessage = userType === 'student'
+          ? t('login.notStudent', 'This account is not a student')
+          : t('login.notTutor', 'This account is not a tutor');
       } else if (error.message.includes('User account is disabled')) {
-        errorMessage = 'Tài khoản đã bị vô hiệu hóa';
+        errorMessage = t('login.disabled', 'Account has been disabled');
       } else if (error.message.includes('Network')) {
-        errorMessage = 'Lỗi kết nối mạng. Vui lòng thử lại';
+        errorMessage = t('login.networkError', 'Network error. Please try again');
       }
       
-      Alert.alert('Lỗi đăng nhập', errorMessage);
+      Alert.alert(t('login.errorTitle', 'Login Error'), errorMessage);
     }
   };
 
   const handleForgotPassword = () => {
     Alert.alert(
-      'Quên mật khẩu',
-      'Tính năng này sẽ được cập nhật sớm. Vui lòng liên hệ hỗ trợ.',
-      [{ text: 'OK' }]
+      t('login.forgotTitle', 'Forgot Password'),
+      t('login.forgotDesc', 'This feature will be updated soon. Please contact support.'),
+      [{ text: t('common.ok', 'OK') }]
     );
   };
 
@@ -91,14 +95,14 @@ const LoginScreen = ({ navigation }) => {
         {/* Logo Section */}
         <View style={styles.logoSection}>
           <Text style={styles.logoText}>TutorConnect</Text>
-          <Text style={styles.subtitle}>Kết nối gia sư và học sinh</Text>
+          <Text style={styles.subtitle}>{t('login.subtitle', 'Connecting tutors and students')}</Text>
         </View>
 
         {/* Form Section */}
         <View style={styles.formSection}>
           {/* User Type Selector - Moved to top for better UX */}
           <View style={styles.userTypeSection}>
-            <Text style={styles.userTypeLabel}>Bạn là:</Text>
+            <Text style={styles.userTypeLabel}>{t('login.userTypeLabel', 'You are:')}</Text>
             <View style={styles.userTypeButtons}>
               <TouchableOpacity
                 style={[
@@ -112,7 +116,7 @@ const LoginScreen = ({ navigation }) => {
                   styles.userTypeButtonText,
                   userType === 'student' && styles.userTypeButtonTextActive
                 ]}>
-                  Học sinh
+                  {t('login.student', 'Student')}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -127,14 +131,14 @@ const LoginScreen = ({ navigation }) => {
                   styles.userTypeButtonText,
                   userType === 'tutor' && styles.userTypeButtonTextActive
                 ]}>
-                  Gia sư
+                  {t('login.tutor', 'Tutor')}
                 </Text>
               </TouchableOpacity>
             </View>
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Email</Text>
+            <Text style={styles.label}>{t('login.email', 'Email')}</Text>
             <TextInput
               style={[styles.input, error && styles.inputError]}
               placeholder="email@example.com"
@@ -148,7 +152,7 @@ const LoginScreen = ({ navigation }) => {
           </View>
 
           <View style={styles.inputContainer}>
-            <Text style={styles.label}>Mật khẩu</Text>
+            <Text style={styles.label}>{t('login.password', 'Password')}</Text>
             <View style={[styles.passwordContainer, error && styles.inputError]}>
               <TextInput
                 style={styles.passwordInput}
@@ -188,10 +192,10 @@ const LoginScreen = ({ navigation }) => {
             {isLoading ? (
               <View style={styles.loadingContainer}>
                 <ActivityIndicator color="white" size="small" />
-                <Text style={styles.loginButtonText}>Đang đăng nhập...</Text>
+                <Text style={styles.loginButtonText}>{t('login.loggingIn', 'Logging in...')}</Text>
               </View>
             ) : (
-              <Text style={styles.loginButtonText}>Đăng nhập</Text>
+              <Text style={styles.loginButtonText}>{t('login.login', 'Login')}</Text>
             )}
           </TouchableOpacity>
 
@@ -200,7 +204,7 @@ const LoginScreen = ({ navigation }) => {
             onPress={handleForgotPassword}
             disabled={isLoading}
           >
-            <Text style={styles.forgotPasswordText}>Quên mật khẩu?</Text>
+            <Text style={styles.forgotPasswordText}>{t('login.forgot', 'Forgot password?')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -209,7 +213,7 @@ const LoginScreen = ({ navigation }) => {
             disabled={isLoading}
           >
             <Text style={[styles.registerButtonText, isLoading && styles.registerButtonTextDisabled]}>
-              Tạo tài khoản mới
+              {t('login.createAccount', 'Create new account')}
             </Text>
           </TouchableOpacity>
         </View>

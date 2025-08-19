@@ -1,7 +1,7 @@
 from django.db import models
 from .user import CustomUser
 from .subject import Subject
-
+import uuid
 # Common location choices for both students and tutors
 LOCATION_CHOICES = [
     ('hanoi', 'Hà Nội'), ('hochiminh', 'TP. Hồ Chí Minh'), ('danang', 'Đà Nẵng'),
@@ -30,6 +30,8 @@ def user_profile_path(instance, filename):
 # Student Profile
 # ===========================
 class StudentProfile(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, db_index=True)
+
     # Access student's school from a user object:
     # user = CustomUser.objects.get(username="john123")
     # school = user.student_profile.school
@@ -71,9 +73,9 @@ class StudentProfile(models.Model):
 class TutorProfile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, related_name='tutor_profile')
     education = models.CharField(max_length=200, blank=True)  # e.g., "ĐHBK Hà Nội - CNTT"
-    location = models.CharField(max_length=50, choices=LOCATION_CHOICES, blank=True)  # e.g., "hochiminh"
+    location = models.CharField(max_length=50, choices=LOCATION_CHOICES, blank=True,)  # e.g., "hochiminh"
     bio = models.TextField(blank=True)  # e.g., "Tôi là giáo viên Toán với 5 năm kinh nghiệm..."
-
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, primary_key=True)
     achievements = models.ManyToManyField('TutorAchievement', blank=True, related_name='tutors')  # e.g., "Giải nhất Olympic Toán"
     class_levels = models.ManyToManyField('ClassLevel', blank=True, related_name='tutors')  # e.g., "Lớp 10", "Lớp 12"
     subjects = models.ManyToManyField('Subject', through='TutorSubject')  # e.g., Toán, Lý

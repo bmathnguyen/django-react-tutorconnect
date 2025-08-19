@@ -7,8 +7,10 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { mockChatRooms } from '../../data/mockData';
+import { useTranslation } from '../../hooks/useTranslation';
 
 const MessagesScreen = ({ navigation }) => {
+  const { t } = useTranslation();
   const [chatRooms, setChatRooms] = useState([]);
 
   useEffect(() => {
@@ -68,7 +70,7 @@ const MessagesScreen = ({ navigation }) => {
     <View style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>Tin nhắn</Text>
+        <Text style={styles.headerTitle}>{t('chat.title', 'Messages')}</Text>
       </View>
 
       {/* Chat Rooms List */}

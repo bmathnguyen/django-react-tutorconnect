@@ -4,7 +4,7 @@ from .profile import StudentProfile, TutorProfile
 
 
 class TutorLike(models.Model):
-    student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE, related_name='liked_tutors')
+    student = models.ForeignKey(StudentProfile, to_field='uuid', db_column='student_profile_uuid', on_delete=models.CASCADE, related_name='liked_tutors')
     tutor = models.ForeignKey(TutorProfile, on_delete=models.CASCADE, related_name='likes')
     created_at = models.DateTimeField(auto_now_add=True)
     
@@ -13,7 +13,7 @@ class TutorLike(models.Model):
 
 
 class TutorSave(models.Model):
-    student = models.ForeignKey(StudentProfile, on_delete=models.CASCADE, related_name='saved_tutors')
+    student = models.ForeignKey(StudentProfile, to_field='uuid', db_column='student_profile_uuid', on_delete=models.CASCADE, related_name='saved_tutors')
     tutor = models.ForeignKey(TutorProfile, on_delete=models.CASCADE, related_name='saves')
     created_at = models.DateTimeField(auto_now_add=True)
     
