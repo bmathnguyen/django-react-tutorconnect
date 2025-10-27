@@ -8,7 +8,6 @@ import uuid
 def chat_file_path(instance, filename):
     return f'chat/{instance.chat_room.id}/{filename}'
 
-
 class ChatRoom(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     student = models.ForeignKey(StudentProfile, to_field='uuid', db_column='student_profile_uuid', on_delete=models.CASCADE, related_name='chat_rooms')
@@ -19,7 +18,6 @@ class ChatRoom(models.Model):
     
     class Meta:
         unique_together = ['student', 'tutor']
-
 
 class Message(models.Model):
     MESSAGE_TYPES = [

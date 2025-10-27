@@ -8,7 +8,6 @@ from django.shortcuts import get_object_or_404
 from api.models import TutorProfile, ChatRoom, Message
 from api.serializers import ChatRoomSerializer, MessageSerializer
 
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def chat_rooms_view(request):
@@ -27,7 +26,6 @@ def chat_rooms_view(request):
     
     serializer = ChatRoomSerializer(chat_rooms, many=True, context={'request': request})
     return Response(serializer.data)
-
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

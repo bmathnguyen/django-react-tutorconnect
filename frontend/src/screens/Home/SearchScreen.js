@@ -24,7 +24,7 @@ const SearchScreen = ({ navigation }) => {
     goal: 'JC Exam',
     location: 'Online',
     district: 'All',
-    subject: 'Mathematics',
+    subject: null,
     priceRange: 50, // SGD value
   });
 
@@ -155,8 +155,8 @@ const SearchScreen = ({ navigation }) => {
                   onValueChange={(value) => updateFilter('goal', value)}
                   style={styles.picker}
                 >
-                  <Picker.Item label={t('goals.highSchoolExam')} value="High School Exam" />
-                  <Picker.Item label={t('goals.specializedExam')} value="Specialized Exam" />
+                  <Picker.Item label={t('goals.highSchoolExam')} value="JC Exam" />
+                  <Picker.Item label={t('goals.specializedExam')} value="O Level Exam" />
                   <Picker.Item label={t('goals.supplementaryLearning')} value="Supplementary Learning" />
                 </Picker>
               </View>
@@ -188,18 +188,24 @@ const SearchScreen = ({ navigation }) => {
                   style={styles.picker}
                 >
                   <Picker.Item label={t('search.allDistricts')} value="All" />
-                  <Picker.Item label="Quận 1" value="Quận 1" />
-                  <Picker.Item label="Quận 2" value="Quận 2" />
-                  <Picker.Item label="Quận 3" value="Quận 3" />
-                  <Picker.Item label="Quận 4" value="Quận 4" />
-                  <Picker.Item label="Quận 5" value="Quận 5" />
-                  <Picker.Item label="Quận 6" value="Quận 6" />
-                  <Picker.Item label="Quận 7" value="Quận 7" />
-                  <Picker.Item label="Quận 8" value="Quận 8" />
-                  <Picker.Item label="Quận 9" value="Quận 9" />
-                  <Picker.Item label="Quận 10" value="Quận 10" />
-                  <Picker.Item label="Quận 11" value="Quận 11" />
-                  <Picker.Item label="Quận 12" value="Quận 12" />
+                  {[
+                  { label: 'One North', value: 'One North' },
+                  { label: 'Kent Ridge', value: 'Kent Ridge' },
+                  { label: 'Buona Vista', value: 'Buona Vista' },
+                  { label: 'Dover', value: 'Dover' },
+                  { label: 'Clementi', value: 'Clementi' },
+                  { label: 'Jurong East', value: 'Jurong East' },
+                  { label: 'Redhill', value: 'Redhill' },
+                  { label: 'Tiong Bahru', value: 'Tiong Bahru' },
+                  { label: 'Queenstown', value: 'Queenstown' },
+                  { label: 'HarbourFront', value: 'HarbourFront' },
+                  { label: 'Dhoby Ghaut', value: 'Dhoby Ghaut' },
+                  { label: 'Paya Lebar', value: 'Paya Lebar' },
+                  { label: 'Serangoon', value: 'Serangoon' },
+                  { label: 'Woodlands', value: 'Woodlands' },
+                ].map((district) => (
+                  <Picker.Item key={district.value} label={district.label} value={district.value} />
+                ))}
                 </Picker>
               </View>
             </View>
