@@ -33,7 +33,6 @@ class CustomUser(AbstractUser):
     Supports both students and tutors with additional fields for the tutoring platform.
     """
     
-    # Define choices for user types - used in forms and admin interface
     USER_TYPE_CHOICES = [
         ('student', 'Student'),
         ('tutor', 'Tutor'),
@@ -67,7 +66,10 @@ class CustomUser(AbstractUser):
     
     # Track when user was last active for analytics and cleanup
     last_activity = models.DateTimeField(default=timezone.now)
-    
+
+    # Wallet balance for payment system
+    wallet_balance = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+
     # Timestamp when user account was created
     created_at = models.DateTimeField(auto_now_add=True)
     
@@ -75,16 +77,7 @@ class CustomUser(AbstractUser):
     updated_at = models.DateTimeField(auto_now=True)
     
     # # Allow username to be blank and set it to null in the database
-    # username = models.CharField(
-    #     max_length=150,
-    #     unique=False,
-    #     blank=True,
-    #     null=True,
-    #     help_text='Optional. 150 characters or fewer. Letters, digits and @/./+/-/_ only.',
-    #     error_messages={
-    #         'unique': "A user with that username already exists.",
-    #     },
-    # )
+    username = models.CharField(max_length=150, unique=False, blank=True, null=True, default=uuid.uuid4)
 
     # Use email as the primary identifier instead of username
     USERNAME_FIELD = 'email'

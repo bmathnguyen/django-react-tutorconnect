@@ -9,55 +9,43 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
-import os  # NEW: For environment variables
+import os
+from decouple import config
 from pathlib import Path
-from datetime import timedelta  # NEW: For JWT token lifetimes
+from datetime import timedelta
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY')  # NEW: Environment variable support
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'True') == 'True'  # NEW: Environment variable support
-# last one is the VPS server
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1, 157.66.47.161').split(',')  # NEW: Environment variable support
+# Environment variables (see .env or system env)
+SECRET_KEY = config('SECRET_KEY')
+DEBUG = config('DEBUG', default=True, cast=bool)
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,157.66.47.161').split(',')
 
 
 # Application definition
 INSTALLED_APPS = [
-    'daphne',  # NEW: WebSocket support (must be first) - enables real-time chat
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
-    # Third party apps
     'rest_framework',
-    'rest_framework_simplejwt',  # NEW: JWT authentication - secure token-based auth for mobile
-    'corsheaders',               # NEW: CORS for React Native - allows mobile app to connect
-    'django_filters',            # NEW: API filtering - enables search/filter functionality
-    'channels',                  # NEW: WebSocket channels - handles real-time connections
-    'channels_redis',            # NEW: Redis for WebSocket - fast message broadcasting
-    
-    # Local apps
-    'database',  # Contains our custom models (CustomUser, TutorProfile, etc.)
-    'api',       # Contains our API views, serializers, and WebSocket consumers
-    'rest_framework_simplejwt.token_blacklist', # NEW: Blacklist for JWT tokens
+    'rest_framework_simplejwt',
+    'corsheaders',
+    'django_filters',
+    'channels',
+    'channels_redis',
+    'database',
+    'api',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 MIDDLEWARE = [
-    'corsheaders.middleware.CorsMiddleware',  # NEW: Handle CORS requests from React Native (must be early)
+    'corsheaders.middleware.CorsMiddleware',
     "django.middleware.security.SecurityMiddleware",
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # NEW: Serve static files efficiently
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -67,10 +55,8 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = "database.urls"
-
-# NEW: ASGI application for WebSocket support
-WSGI_APPLICATION = "database.wsgi.application"  # For HTTP requests
-ASGI_APPLICATION = "database.asgi.application"  # For WebSocket connections (real-time chat)
+WSGI_APPLICATION = "database.wsgi.application"
+ASGI_APPLICATION = "database.asgi.application"
 
 TEMPLATES = [
     {
@@ -79,7 +65,7 @@ TEMPLATES = [
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
-                "django.template.context_processors.debug",  # NEW: Debug context
+                "django.template.context_processors.debug",
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
@@ -88,24 +74,20 @@ TEMPLATES = [
     },
 ]
 
-
 # Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
-
-# NEW: PostgreSQL configuration for production (scalable, handles concurrent users)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME', 'tutoring_db'),
-        'USER': os.environ.get('DB_USER', 'postgres'),
-        'PASSWORD': os.environ.get('DB_PASSWORD', 'password'),
-        'HOST': os.environ.get('DB_HOST', 'localhost'),
-        'PORT': os.environ.get('DB_PORT', '5432'),
+        'NAME': config('DB_NAME', default='tutoring_db'),
+        'USER': config('DB_USER', default='postgres'),
+        'PASSWORD': config('DB_PASSWORD', default='password'),
+        'HOST': config('DB_HOST', 'localhost'),
+        'PORT': config('DB_PORT', '5432'),
     }
 }
 
 # NEW: Fallback to SQLite for development (easier setup)
-if DEBUG and not os.environ.get('USE_POSTGRES'):
+if DEBUG and not config('USE_POSTGRES'):
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
@@ -117,18 +99,17 @@ if DEBUG and not os.environ.get('USE_POSTGRES'):
 AUTH_USER_MODEL = 'api.CustomUser'
 
 # NEW: Cache configuration using Redis (fast data access, sessions)
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': os.environ.get('REDIS_URL', 'redis://localhost:6379/1'),
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+if config('USE_REDIS', default='0') == '1':
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': config('REDIS_URL', 'redis://localhost:6379/1'),
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            }
         }
     }
-}
-
-# NEW: Fallback to in-memory cache for development (no Redis needed)
-if DEBUG and not os.environ.get('USE_REDIS'):
+else:
     CACHES = {
         'default': {
             'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
@@ -145,13 +126,13 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [os.environ.get('REDIS_URL', 'redis://localhost:6379/0')],
+            'hosts': [config('REDIS_URL', 'redis://localhost:6379/0')],
         },
     },
 }
 
 # NEW: Fallback channel layer for development (no Redis needed)
-if DEBUG and not os.environ.get('USE_REDIS'):
+if DEBUG and not config('USE_REDIS'):
     CHANNEL_LAYERS = {
         'default': {
             'BACKEND': 'channels.layers.InMemoryChannelLayer'
