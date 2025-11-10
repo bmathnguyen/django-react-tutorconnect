@@ -30,6 +30,3 @@ urlpatterns = [
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
-# Uncomment the following line if you want to enable format suffixes in your URLs, must add format = None to the view functions
-# urlpatterns = format_suffix_patterns(urlpatterns)

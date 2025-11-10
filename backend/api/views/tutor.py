@@ -52,27 +52,3 @@ class TutorDetailView(generics.RetrieveAPIView):
         # Serialize the tutor profile and return as response
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
-
-# ----
-# Filtering/Search/Ordering Data & Models:
-# 
-# Search fields:
-#   - user__first_name   (from TutorProfile.user, CustomUser.first_name)
-#   - user__last_name    (from TutorProfile.user, CustomUser.last_name)
-#   - education          (from TutorProfile.education)
-#   - bio                (from TutorProfile.bio)
-#
-# Filter fields (from TutorProfileFilter):
-#   - price_min          (TutorProfile.price_min)
-#   - price_max          (TutorProfile.price_max)
-#   - rating_average     (TutorProfile.rating_average)
-#   - subjects           (TutorProfile.subjects via tutor_subjects__subject)
-#   - location           (TutorProfile.location)
-#   - is_verified        (TutorProfile.is_verified)
-#
-# Ordering fields:
-#   - price_min          (TutorProfile.price_min)
-#   - rating_average     (TutorProfile.rating_average)
-#
-# Main models: TutorProfile, CustomUser, Subject, TutorSubject
-# Field names in queries: see above
