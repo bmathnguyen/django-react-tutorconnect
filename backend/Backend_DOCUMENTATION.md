@@ -38,6 +38,28 @@
 
 ### Example Requests & Responses (Postman)
 
+### User Registration Errors
+
+Possible errors returned by the registration endpoint:
+
+| Field             | Example Error Message                       |
+|-------------------|--------------------------------------------|
+| password_confirm  | Passwords do not match.                    |
+| password          | This password is too short.                 |
+| password          | This password is too common.                |
+| password          | This password is entirely numeric.          |
+| email             | Email is required.                          |
+| user_type         | User type is required.                      |
+
+Errors are returned as a JSON object, e.g.:
+```json
+{
+  "password": ["This password is too short. It must contain at least 8 characters."],
+  "password_confirm": ["Passwords do not match."],
+  "email": ["Email is required."]
+}
+```
+
 #### Register
 **Request:**
 ```
