@@ -18,14 +18,34 @@ class RegisterSerializer(serializers.ModelSerializer):
         ]
     
     def validate(self, attrs):
-        if attrs['password'] != attrs['password_confirm']:
-            raise serializers.ValidationError("Passwords don't match")
+        errors = {}
+        # Password match
+        if attrs.get('password') != attrs.get('password_confirm'):
+            errors['password_confirm'] = ['Passwords do not match.']
+        # Password strength
+        try:
+            validate_password(attrs.get('password'))
+        except serializers.ValidationError as e:
+            errors['password'] = list(e.messages)
+        # Email required/valid
+        if not attrs.get('email'):
+            errors['email'] = ['Email is required.']
+        # User type required
+        if not attrs.get('user_type'):
+            errors['user_type'] = ['User type is required.']
+        # # First/last name required
+        # if not attrs.get('first_name'):
+        #     errors['first_name'] = ['First name is required.']
+        # if not attrs.get('last_name'):
+        #     errors['last_name'] = ['Last name is required.']
+        if errors:
+            raise serializers.ValidationError(errors)
         return attrs
     
     def create(self, validated_data):
         validated_data.pop('password_confirm')
         profile_data = validated_data.pop('profile_data', {})
-        
+        validated_data['username'] = validated_data['email']
         user = CustomUser.objects.create_user(**validated_data)
         
         # Create profile

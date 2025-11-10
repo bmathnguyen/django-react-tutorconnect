@@ -4,6 +4,25 @@ Welcome to the TutorConnect API documentation. This document provides a detailed
 
 ---
 
+## PostgreSQL Setup (USE_POSTGRES=1)
+
+1. **Install PostgreSQL** if not already installed.
+2. **Create the database:**
+   ```sh
+   createdb -U postgres tutoring_db
+   # or
+   psql -U postgres -c "CREATE DATABASE tutoring_db;"
+   ```
+3. **Set `USE_POSTGRES=1` in your `.env` file** and fill in DB credentials.
+4. **Run migrations:**
+   ```sh
+   python manage.py migrate
+   ```
+5. **Troubleshooting:**
+   - If you see `psycopg2.OperationalError: FATAL: database ... does not exist`, ensure the DB is created and credentials are correct.
+
+---
+
 ## Singaporean Tutor Mock Data Seeder
 
 For development and testing, TutorConnect includes a management command to seed the database with realistic Singaporean tutors and students.

@@ -99,18 +99,17 @@ if DEBUG and not config('USE_POSTGRES'):
 AUTH_USER_MODEL = 'api.CustomUser'
 
 # NEW: Cache configuration using Redis (fast data access, sessions)
-CACHES = {
-    'default': {
-        'BACKEND': 'django_redis.cache.RedisCache',
-        'LOCATION': config('REDIS_URL', 'redis://localhost:6379/1'),
-        'OPTIONS': {
-            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+if config('USE_REDIS', default='0') == '1':
+    CACHES = {
+        'default': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            'LOCATION': config('REDIS_URL', 'redis://localhost:6379/1'),
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            }
         }
     }
-}
-
-# NEW: Fallback to in-memory cache for development (no Redis needed)
-if DEBUG and not config('USE_REDIS'):
+else:
     CACHES = {
         'default': {
             'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',

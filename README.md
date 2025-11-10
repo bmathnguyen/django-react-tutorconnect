@@ -60,7 +60,44 @@ For full API details, see [`API_DOCUMENTATION.md`](./API_DOCUMENTATION.md).
 
 ---
 
-## ⚡ Quickstart (Development)
+## Getting Started
+
+### Using PostgreSQL (USE_POSTGRES=1)
+
+1. **Install PostgreSQL** (if not already):
+   - macOS: `brew install postgresql`
+   - Ubuntu: `sudo apt install postgresql`
+
+2. **Create the database** (replace username/dbname as needed):
+   ```sh
+   createdb -U postgres tutoring_db
+   # or
+   psql -U postgres -c "CREATE DATABASE tutoring_db;"
+   ```
+
+3. **Configure your `.env` file**:
+   ```env
+   USE_POSTGRES=1
+   DB_NAME=tutoring_db
+   DB_USER=postgres
+   DB_PASSWORD=yourpassword
+   DB_HOST=localhost
+   DB_PORT=5432
+   ```
+
+4. **Run migrations:**
+   ```sh
+   python manage.py migrate
+   ```
+
+5. **Start the server:**
+   ```sh
+   python manage.py runserver
+   ```
+
+**Troubleshooting:**
+- If you see `psycopg2.OperationalError: FATAL: database "tutoring_db" does not exist`, make sure you created the DB.
+- If you see connection errors, check your `.env` and that PostgreSQL is running.
 
 ### Prerequisites
 - Python 3.10+
