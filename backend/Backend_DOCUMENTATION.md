@@ -38,6 +38,96 @@
 
 ### Example Requests & Responses (Postman)
 
+### TutorSubject & TutorSubjectTag Models
+
+**TutorSubject**
+- id (UUID, PK)
+- tutor_profile (FK to TutorProfile)
+- subject (FK to Subject)
+- level (basic/advanced)
+- price (decimal)
+
+**TutorSubjectTag**
+- id (UUID, PK)
+- tutor_subject (FK to TutorSubject)
+- tag (CharField, e.g., "Olympiad", "MOE")
+- price (decimal)
+- is_admin_tag (bool)
+
+**Uniqueness constraint:** The pair (`tutor_subject`, `tag`) must be unique for each TutorSubjectTag.
+
+**Relationships:**
+- Each TutorProfile has many TutorSubjects (with subject, level, price)
+- Each TutorSubject can have multiple TutorSubjectTags
+
+### TutorProfile API (Updated)
+
+**Fields:**
+- uuid (PK)
+- user (User UUID)
+- education
+- bio
+- location
+- is_verified
+- rating_average
+- total_reviews
+- profile_image
+- achievements: list of `{id, title, is_featured}`
+- class_levels
+- tutor_subjects: array of TutorSubject objects
+    - Each TutorSubject: `{id, subject, level, price, tags: [TutorSubjectTag]}`
+
+**Example tutor_subjects JSON:**
+```json
+[
+  {
+    "id": "uuid-1",
+    "subject": 1,  // subject PK
+    "level": "advanced",
+    "price": 350000,
+    "tags": [
+      {"id": "uuid-tag1", "price": 350000}
+    ]
+  },
+  {
+    "id": "uuid-2",
+    "subject": 2,
+    "level": "basic",
+    "price": 250000,
+    "tags": []
+  }
+]
+```
+
+### StudentProfile API
+
+**Fields:**
+- uuid (PK)
+- school
+- grade
+- learning_goals
+- preferred_subjects
+- location
+- budget_min, budget_max
+- profile_image
+- preferences (JSON)
+
+**Example Response:**
+```json
+{
+  "uuid": "a1b2c3...",
+  "school": "Hanoi Amsterdam High School",
+  "grade": "12",
+  "learning_goals": ["IELTS 7.0"],
+  "preferred_subjects": [ ... ],
+  "location": "hanoi",
+  "budget_min": 300000,
+  "budget_max": 500000,
+  "profile_image": null,
+  "preferences": {"study_time": "evenings"}
+}
+```
+
 ### User Registration Errors
 
 Possible errors returned by the registration endpoint:

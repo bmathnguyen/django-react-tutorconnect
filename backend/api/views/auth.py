@@ -10,13 +10,19 @@ from api.serializers import RegisterSerializer, LoginSerializer, UserSerializer
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_view(request):
+    # Deserialize step
     serializer = RegisterSerializer(data=request.data)
     if serializer.is_valid():
+        # Create a new User instance, by calling .create() internally
         user = serializer.save()
         refresh = RefreshToken.for_user(user)
         
         return Response({
+            # Serialize step
             'user': UserSerializer(user).data,
+            # First json object is the user data
+            # Second json object is the tokens
+            # Serialize.data will return a `dict` data type
             'tokens': {
                 'access': str(refresh.access_token),
                 'refresh': str(refresh),

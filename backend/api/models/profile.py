@@ -42,7 +42,6 @@ class StudentProfile(models.Model):
         ('university', 'Đại học'),
     ]
 
-    # OneToOneField: Each user has one and only one student profile
     user = models.OneToOneField(
         CustomUser,                  # Link to your custom user model
         on_delete=models.CASCADE,   # Delete the profile if the user is deleted
@@ -57,7 +56,7 @@ class StudentProfile(models.Model):
     budget_min = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)  # e.g., 300000.00
     budget_max = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)  # e.g., 500000.00
     profile_image = models.ImageField(upload_to=user_profile_path, blank=True)  # e.g., "profiles/{user_id}/avatar.png"
-
+    preferences = models.JSONField(default=list, blank=True)  # e.g., ["Online", "Offline"]
     def update_budget(self, min_value, max_value):
         """Update student's budget preferences."""
         self.budget_min = min_value
@@ -142,21 +141,29 @@ class TutorAchievement(models.Model):
         return f"{self.title}{' (Featured)' if self.is_featured else ''}"
 
 class TutorSubject(models.Model):
-    LEVEL_CHOICES = [
-        ('basic', 'Cơ Bản'),
-        ('advanced', 'Nâng Cao'),
-    ]
-
-    tutor_profile = models.ForeignKey('TutorProfile', on_delete=models.CASCADE, related_name='tutor_subjects')  # e.g., tutor_profile=TutorProfile object
-    subject = models.ForeignKey('Subject', on_delete=models.CASCADE)  # e.g., subject=Subject("Toán")
-    level = models.CharField(max_length=50, choices=LEVEL_CHOICES)  # e.g., "advanced"
-    price = models.DecimalField(max_digits=10, decimal_places=2)  # e.g., 350000.00
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    tutor_profile = models.ForeignKey('TutorProfile', on_delete=models.CASCADE)
+    subject = models.ForeignKey('Subject', on_delete=models.CASCADE)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:
-        unique_together = ('tutor_profile', 'subject', 'level')
+        unique_together = ('tutor_profile', 'subject')
 
     def __str__(self):
         return f"{self.tutor_profile.user.email} - {self.subject.name} ({self.level})"
+
+class TutorSubjectTag(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    tutor_subjects = models.ForeignKey(TutorSubject, related_name='tags', blank=True, on_delete=models.CASCADE)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    tag = models.CharField(max_length=100)
+    is_admin_tag = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ('tutor_subjects', 'tag')
+
+    def __str__(self):
+        return self.tutor_subjects.name + " - " + self.tag + " - " + str(self.price)
 
 class ClassLevel(models.Model):
     name = models.CharField(max_length=50, unique=True)  # e.g., "Lớp 6-9"

@@ -8,21 +8,28 @@ class StudentProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = StudentProfile
         fields = [
-            'school', 'grade', 'learning_goals', 'preferred_subjects',
-            'location', 'budget_min', 'budget_max', 'profile_image'
+            'uuid', 'school', 'grade', 'learning_goals', 'preferred_subjects',
+            'location', 'budget_min', 'budget_max', 'profile_image', 'preferences'
         ]
 
 class TutorProfileSerializer(serializers.ModelSerializer):
-    tutor_subjects = TutorSubjectSerializer(many=True)
-    
+    tutor_subjects = TutorSubjectSerializer(many=True, read_only=True)
+    achievements = serializers.SerializerMethodField()
+
     class Meta:
         model = TutorProfile
         fields = [
             'user', 'education', 'bio', 'location', 'is_verified',
             'rating_average', 'total_reviews', 'profile_image',
-            'achievements', 'class_levels', 'subjects', 'price_min', 'price_max'
+            'achievements', 'class_levels', 'subjects', 'price_min', 'price_max', 'tutor_subjects'
         ]
         read_only_fields = ['user']
+
+    def get_achievements(self, obj):
+        return [
+            {'id': ach.id, 'title': ach.title, 'is_featured': ach.is_featured}
+            for ach in obj.achievements.all()
+        ]
 
     # ADDITIONAL FUNCTIONS: WHAT ARE THESE FOR?
     # probably used for creating a tutor profile with subjects: without changing the Subject model
