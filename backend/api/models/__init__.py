@@ -1,7 +1,7 @@
 # models/__init__.py
 from .user import CustomUser
 from .subject import Subject
-from .profile import StudentProfile, TutorProfile, TutorSubject, ClassLevel
+from .profile import StudentProfile, TutorProfile, TutorSubject, TutorSubjectTag, ClassLevel
 from .interaction import TutorLike, TutorSave, TutorView
 from .chat import ChatRoom, Message
 from .review import Review
@@ -12,6 +12,7 @@ __all__ = [
     'StudentProfile',
     'TutorProfile',
     'TutorSubject',
+    'TutorSubjectTag',
     'TutorLike',
     'TutorSave', 
     'TutorView',
