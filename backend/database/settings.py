@@ -27,7 +27,16 @@ INSTALLED_APPS = [
     'channels',
     'channels_redis',
     'database',
-    'api',
+    # New modular apps
+    'users',
+    'profiles',
+    'subjects',
+    'interactions',
+    'chats',
+    'reviews',
+    'tutors',
+    # Legacy api app removed - all models moved to new apps
+    # 'api',  # REMOVED: Causes model conflicts with new apps
     'rest_framework_simplejwt.token_blacklist',
 ]
 
@@ -85,7 +94,7 @@ if DEBUG and not config('USE_POSTGRES'):
     }
 
 # NEW: Custom User Model - extends Django's User with student/tutor types
-AUTH_USER_MODEL = 'api.CustomUser'
+AUTH_USER_MODEL = 'users.CustomUser'
 
 # NEW: Cache configuration using Redis (fast data access, sessions)
 if config('USE_REDIS', default='0') == '1':
@@ -163,7 +172,6 @@ CORS_ALLOWED_ORIGINS = config(
 ).split(',')
 
 CORS_ALLOW_CREDENTIALS = True  # Allow cookies/auth headers
-
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

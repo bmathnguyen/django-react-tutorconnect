@@ -23,9 +23,17 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    # path("", views.default_view), # must import views.default_view in api.views.py
     path('admin/', admin.site.urls),
-    path('api/', include('api.urls')),  # Route all /api/ requests to api app
+    # New modular app URLs
+    path('api/v1/', include('users.urls')),
+    path('api/v1/', include('profiles.urls')),
+    path('api/v1/', include('tutors.urls')),
+    path('api/v1/', include('interactions.urls')),
+    path('api/v1/', include('chats.urls')),
+    path('api/v1/', include('reviews.urls')),
+    path('api/v1/', include('subjects.urls')),
+    # Legacy api app (can be removed after migration)
+    # path('api/', include('api.urls')),
 ]
 
 if settings.DEBUG:
