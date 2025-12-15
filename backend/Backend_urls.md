@@ -191,7 +191,8 @@ Finished Checking Here!
 **Query Parameters:**
 - `subjectId`: (Integer) Filter by Subject ID (e.g. `?subjectId=1`)
 - `tags`: (String) Filter by tags, comma-separated (e.g. `?tags=HSGTP,Beginner`)
-- `maxPrice`: (Decimal) Filter by maximum price (e.g. `?maxPrice=150000`)
+- `max_price`: (Decimal) Filter by maximum price (e.g. `?max_price=150000`)
+- `classes`: (String) Filter by class grades, comma-separated (e.g. `?classes=1,5,10`). Maps to `Grade 1-5`, `Grade 6-9`, `Grade 10-12`.
 
 **Response:**
 ```json
@@ -239,7 +240,9 @@ Finished Checking Here!
   "recent_reviews": [...]
 }
 ```
-
+---
+Finished checking Here!
+---
 ### Profile Service
 
 #### Update Tutor Profile (Tutor Only)
@@ -249,13 +252,13 @@ Finished Checking Here!
 ```json
 {
   "bio": "New bio...",
-  "achievements": ["New achievement"],
+  "achievements": ["Math Olympiad Winner", "Certified Teacher"],
   "subjects": [
     {
       "subjectId": 1,
       "tags": [
-        {"tag": "HSGTP", "price": 150.00},
-        {"tag": "Advanced", "price": 120.00}
+        {"tag": "HSGTP", "price": 150000},
+        {"tag": "Advanced", "price": 120000}
       ]
     }
   ]

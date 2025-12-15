@@ -280,8 +280,63 @@ class Command(BaseCommand):
                         tag=tag,
                         price=price
                     )
+            
+            # Update price range calculated from tags
+            profile.update_price_range()
 
             tutors.append(profile)
+
+        # Create Guaranteed Match Tutor (for manual testing)
+        # Subject 1 (Math), Grade 9 (Grade 6-9), Price 350k <= 400k
+        test_tutor_user, _ = CustomUser.objects.get_or_create(
+            email="test.match@tutor.com",
+            defaults={
+                'username': "test.match@tutor.com",
+                'first_name': "Test",
+                'last_name': "Match",
+                'user_type': 'tutor'
+            }
+        )
+        if not test_tutor_user.password:
+            test_tutor_user.set_password('password123')
+            test_tutor_user.save()
+
+        test_tutor, _ = TutorProfile.objects.get_or_create(
+            user=test_tutor_user,
+            defaults={
+                'education': "Test Education",
+                'rating_average': 5.0,
+                'price_min': 350000,
+                'price_max': 350000
+            }
+        )
+        grade_6_9, _ = ClassLevel.objects.get_or_create(name='Grade 6-9')
+        test_tutor.class_levels.add(grade_6_9)
+
+        # Ensure Subject 1 exists (usually determined by seed order, but checking name)
+        # Subject 1 is likely 'Toán' (VN) or 'Math' (SG) depending on seed list order.
+        # We will fetch Subject with ID 1 if possible, or create one.
+        try:
+            subj_1 = Subject.objects.get(id=1)
+        except Subject.DoesNotExist:
+            subj_1 = Subject.objects.create(name="Test Subject")
+        
+        # Create TutorSubject for Subject 1
+        ts_test, _ = TutorSubject.objects.get_or_create(
+            tutor_profile=test_tutor,
+            subject=subj_1
+        )
+        
+        # Create Tag with price < 400k
+        TutorSubjectTag.objects.create(
+            tutor_subject=ts_test,
+            tag='Exam Prep',
+            price=350000
+        )
+        test_tutor.update_price_range()
+        
+        tutors.append(test_tutor)
+        self.stdout.write(self.style.SUCCESS(f'✓ Created GUARANTEED match tutor: {test_tutor_user.email} (Subj {subj_1.id}, Price 350k)'))
 
         self.stdout.write(self.style.SUCCESS(f'✓ Created {len(tutors)} tutors'))
 

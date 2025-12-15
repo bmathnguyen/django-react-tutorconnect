@@ -4,7 +4,7 @@ from . import views
 
 urlpatterns = [
     # Tutor endpoints
-    path('search/tutors/', views.TutorSearchView.as_view(), name='tutor-search'),
+    path('tutors/', views.TutorSearchView.as_view(), name='tutor-search'),
     path('tutors/<uuid:uuid>/', views.TutorDetailView.as_view(), name='tutor-detail'),
 ]
 

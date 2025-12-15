@@ -33,7 +33,7 @@ class TutorDetailView(generics.RetrieveAPIView):
         - reviews_received__student__user (recent reviews with student info)
         """
         return TutorProfile.objects.select_related('user').prefetch_related(
-            'achievements', 'tutor_subjects__subject', 'reviews_received__student__user'
+            'tutor_subjects__subject', 'reviews_received__student__user'
         )
 
     def retrieve(self, request, *args, **kwargs):
@@ -70,22 +70,6 @@ class TutorSearchView(generics.ListAPIView):
         """
         Builds the base queryset and applies location-specific filtering.
         """
-        queryset = TutorProfile.objects.select_related('user').prefetch_related(
+        return TutorProfile.objects.select_related('user').prefetch_related(
             'tutor_subjects__subject', 'class_levels'
         ).filter(user__is_active=True).order_by('-rating_average')
-
-        location_type = self.request.query_params.get('location_type')
-
-        # If the search is for 'offline' tutoring, we must filter by the provided city.
-        if location_type == 'offline':
-            city = self.request.query_params.get('city', None)
-            if city:
-                # Filter for tutors in the exact same city (case-insensitive).
-                queryset = queryset.filter(location__iexact=city)
-            else:
-                # If searching for offline tutors but no city is provided, return no results.
-                return queryset.none()
-        # If location_type is 'online' or not specified, no location filter is applied,
-        # meaning all tutors are considered regardless of their city.
-
-        return queryset

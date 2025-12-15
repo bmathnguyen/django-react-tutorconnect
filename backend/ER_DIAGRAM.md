@@ -110,7 +110,7 @@ erDiagram
     StudentProfile }|--|{ Subject : "prefers"
     TutorProfile }|--|{ ClassLevel : "teaches"
     
-    TutorProfile ||--|{ TutorAchievement : "has"
+
 
     TutorProfile ||--|{ TutorSubject : "teaches"
     Subject ||--|{ TutorSubject : "taught by"

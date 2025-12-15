@@ -8,17 +8,17 @@ class TutorSearchFilter(django_filters.FilterSet):
     Handles complex filtering for class levels, subjects, price, and location.
     """
     classes = django_filters.CharFilter(method='filter_by_classes', label='Filter by class grades (e.g., "1,5,10")')
-    subjects = django_filters.CharFilter(field_name='tutor_subjects__subject__name', lookup_expr='icontains', label='Filter by subject name (contains)')
-    max_price = django_filters.NumberFilter(field_name='price_min', lookup_expr='lte', label='Maximum price (tutor\'s min price <= value)')
+    subjectId = django_filters.NumberFilter(field_name='tutor_subjects__subject__id', label='Filter by Subject ID')
+    tags = django_filters.CharFilter(method='filter_by_tags', label='Filter by tags (comma-separated)')
+    max_price = django_filters.NumberFilter(field_name='price_min', lookup_expr='lte', label='Maximum price')
 
     class Meta:
         model = TutorProfile
-        fields = ['subjects', 'max_price', 'classes']
+        fields = ['subjectId', 'tags', 'max_price', 'classes']
 
     def filter_by_classes(self, queryset, name, value):
         """
         Custom filter to map individual grade numbers to ClassLevel groups.
-        Input `value` is a comma-separated string of grades (e.g., "1,2,10").
         """
         try:
             grades = [int(g.strip()) for g in value.split(',') if g.strip().isdigit()]
@@ -41,4 +41,14 @@ class TutorSearchFilter(django_filters.FilterSet):
             return queryset
 
         return queryset.filter(class_levels__name__in=list(class_level_names)).distinct()
+
+    def filter_by_tags(self, queryset, name, value):
+        """
+        Filter by tags (comma-separated).
+        Matches any tutor who has at least one of the tags.
+        """
+        tags = [t.strip() for t in value.split(',') if t.strip()]
+        if not tags:
+            return queryset
+        return queryset.filter(tutor_subjects__tags__tag__in=tags).distinct()
 

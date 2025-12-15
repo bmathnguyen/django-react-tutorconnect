@@ -11,7 +11,7 @@
 - `last_activity` (datetime): Last activity timestamp
 - `student_profile` (object): Student profile data (if applicable)
 - `tutor_profile` (object): Tutor profile data (if applicable)
-- `achievements` (array): Top 3 achievements (tutors only)
+- `achievements` (json): List of strings (tutors only)
 
 ### Example API Response
 ```json
@@ -44,8 +44,6 @@
 - id (UUID, PK)
 - tutor_profile (FK to TutorProfile)
 - subject (FK to Subject)
-- level (basic/advanced)
-- price (decimal)
 
 **TutorSubjectTag**
 - id (UUID, PK)
@@ -72,28 +70,25 @@
 - rating_average
 - total_reviews
 - profile_image
-- achievements: list of `{id, title, is_featured}`
+- achievements: List of strings (JSON)
 - class_levels
 - tutor_subjects: array of TutorSubject objects
-    - Each TutorSubject: `{id, subject, level, price, tags: [TutorSubjectTag]}`
+    - Each TutorSubject: `{id, subject, tags: [TutorSubjectTag]}`
 
 **Example tutor_subjects JSON:**
 ```json
 [
   {
     "id": "uuid-1",
-    "subject": 1,  // subject PK
-    "level": "advanced",
-    "price": 350000,
+    "subject": 1,  // subject PK (Integer)
     "tags": [
-      {"id": "uuid-tag1", "price": 350000}
+      {"id": "uuid-tag1", "tag": "Advanced", "price": 350000}
     ]
+  },
   },
   {
     "id": "uuid-2",
-    "subject": 2,
-    "level": "basic",
-    "price": 250000,
+    "subject": 2, // subject PK (Integer)
     "tags": []
   }
 ]
