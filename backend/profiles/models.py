@@ -77,7 +77,7 @@ class TutorProfile(models.Model):
     location = models.CharField(max_length=50, choices=LOCATION_CHOICES, blank=True,)  # e.g., "hochiminh"
     bio = models.TextField(blank=True)  # e.g., "Tôi là giáo viên Toán với 5 năm kinh nghiệm..."
     uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True, primary_key=True)
-    achievements = models.ManyToManyField('TutorAchievement', blank=True, related_name='tutors')  # e.g., "Giải nhất Olympic Toán"
+    achievements = models.JSONField(default=list, blank=True)  # e.g., ["Giải nhất Olympic Toán"]
     class_levels = models.ManyToManyField('ClassLevel', blank=True, related_name='tutors')  # e.g., "Lớp 10", "Lớp 12"
     subjects = models.ManyToManyField('subjects.Subject', through='TutorSubject')  # e.g., Toán, Lý
 
@@ -111,20 +111,18 @@ class TutorProfile(models.Model):
             self.total_reviews = reviews.count()
             self.save(update_fields=['rating_average', 'total_reviews'])
 
-    def get_featured_achievements(self):
-        """Return top 3 featured achievements."""
-        return self.tutor_achievements.filter(is_featured=True)[:3]  # e.g., only achievements with is_featured=True
+
 
     # def get_top_achievements(self):
     #     """Return first 3 achievements (non-filtered)."""
     #     return self.achievements.all()[:3]  # e.g., first 3 achievements
 
     def update_price_range(self):
-        """Compute tutor's min/max price based on TutorSubject using database aggregation."""
-        # Use aggregation for efficiency instead of fetching all prices into memory
-        price_agg = self.tutor_subjects.filter(price__gt=0).aggregate(
-            min_price=models.Min('price'),
-            max_price=models.Max('price')
+        """Compute tutor's min/max price based on TutorSubjectTags using database aggregation."""
+        # Join TutorSubject -> TutorSubjectTag to get prices
+        price_agg = self.tutor_subjects.aggregate(
+            min_price=models.Min('tags__price'),
+            max_price=models.Max('tags__price')
         )
         self.price_min = price_agg.get('min_price')
         self.price_max = price_agg.get('max_price')
@@ -134,13 +132,7 @@ class TutorProfile(models.Model):
 # Join Models & Metadata
 # ===========================
 
-class TutorAchievement(models.Model):
-    tutor_profile = models.ForeignKey(TutorProfile, on_delete=models.CASCADE, related_name='tutor_achievements', null=True)
-    title = models.CharField(max_length=200)  # e.g., "Giải nhất Olympic Toán học sinh viên"
-    is_featured = models.BooleanField(default=False)  # e.g., True nếu là thành tích nổi bật
 
-    def __str__(self):
-        return f"{self.title}{' (Featured)' if self.is_featured else ''}"
 
 class TutorSubject(models.Model):
     LEVEL_CHOICES = [
@@ -151,19 +143,17 @@ class TutorSubject(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     tutor_profile = models.ForeignKey('TutorProfile', on_delete=models.CASCADE, related_name='tutor_subjects')
     subject = models.ForeignKey('subjects.Subject', on_delete=models.CASCADE)
-    level = models.CharField(max_length=20, choices=LEVEL_CHOICES, default='basic')
-    price = models.DecimalField(max_digits=10, decimal_places=2)
 
     class Meta:
-        unique_together = ('tutor_profile', 'subject', 'level')
+        unique_together = ('tutor_profile', 'subject')
 
     def __str__(self):
-        return f"{self.tutor_profile.user.email} - {self.subject.name} ({self.level})"
+        return f"{self.tutor_profile.user.email} - {self.subject.name}"
 
 class TutorSubjectTag(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     tutor_subject = models.ForeignKey(TutorSubject, related_name='tags', on_delete=models.CASCADE)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     tag = models.CharField(max_length=100)
     is_admin_tag = models.BooleanField(default=False)
 

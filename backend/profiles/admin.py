@@ -5,7 +5,6 @@ from profiles.models import (
     TutorProfile, 
     TutorSubject,
     TutorSubjectTag,
-    TutorAchievement,
     ClassLevel
 )
 
@@ -29,9 +28,9 @@ class TutorProfileAdmin(admin.ModelAdmin):
 
 @admin.register(TutorSubject)
 class TutorSubjectAdmin(admin.ModelAdmin):
-    list_display = ('tutor_profile', 'subject', 'level', 'price', 'id')
+    list_display = ('tutor_profile', 'subject', 'id')
     search_fields = ('tutor_profile__user__email', 'subject__name')
-    list_filter = ('subject', 'level')
+    list_filter = ('subject',)
 
 @admin.register(TutorSubjectTag)
 class TutorSubjectTagAdmin(admin.ModelAdmin):
@@ -39,11 +38,7 @@ class TutorSubjectTagAdmin(admin.ModelAdmin):
     search_fields = ('tutor_subject__subject__name', 'tag')
     list_filter = ('is_admin_tag',)
 
-@admin.register(TutorAchievement)
-class TutorAchievementAdmin(admin.ModelAdmin):
-    list_display = ('tutor_profile', 'title', 'is_featured')
-    list_filter = ('is_featured',)
-    search_fields = ('title', 'tutor_profile__user__email')
+
 
 @admin.register(ClassLevel)
 class ClassLevelAdmin(admin.ModelAdmin):

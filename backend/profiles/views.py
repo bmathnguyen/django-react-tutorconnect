@@ -20,7 +20,7 @@ def update_profile_view(request):
     user.save()
     
     # Update profile fields
-    profile_data = request.data.get('profile_data', {})
+    profile_data = request.data.get('student_profile', {})
     if hasattr(user, 'student_profile') and profile_data:
         profile = user.student_profile
         profile_fields = ['school', 'grade', 'learning_goals', 'location', 'budget_min', 'budget_max']

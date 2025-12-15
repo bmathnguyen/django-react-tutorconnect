@@ -38,17 +38,24 @@ class TutorListSerializer(serializers.ModelSerializer):
     
     def get_subjects(self, obj):
         """
-        Returns a list of up to 3 subjects, each as a dict.
-        Assumes TutorSubject model has 'subject' and 'level' or 'proficiency_level'.
+        Returns a list of subjects, each with tags and prices.
+        Structure: [{'subjectId': 1, 'subjectName': 'Math', 'tags': [{'tag': 'HSGTP', 'price': 150.0}]}]
         """
-        # If TutorSubject has 'level' (common), use 'level' instead of 'proficiency_level'
-        return [
-            {
-                'name': ts.subject.name,
-                'level': ts.level
-            }
-            for ts in obj.tutor_subjects.all()[:3]
-        ]
+        result = []
+        for ts in obj.tutor_subjects.all():
+            tags_data = []
+            for tag in ts.tags.all():
+                tags_data.append({
+                    'tag': tag.tag,
+                    'price': tag.price
+                })
+            
+            result.append({
+                'subjectId': ts.subject.id,
+                'subjectName': ts.subject.name,
+                'tags': tags_data
+            })
+        return result
     
     def get_is_liked(self, obj):
         """
@@ -85,11 +92,9 @@ class TutorDetailSerializer(TutorListSerializer):
     
     def get_achievements(self, obj):
         """
-        Returns up to 5 achievement titles (as strings).
-        Assumes obj.achievements is a queryset of achievement objects with a 'title' attribute.
+        Returns achievements list directly from JSONField.
         """
-        # If obj.achievements is a queryset, fetch titles
-        return [ach.title for ach in getattr(obj, 'achievements', []).all()[:5]] if hasattr(getattr(obj, 'achievements', None), 'all') else (getattr(obj, 'achievements', [])[:5] if obj.achievements else [])
+        return obj.achievements if isinstance(obj.achievements, list) else []
 
     def get_recent_reviews(self, obj):
         """

@@ -36,7 +36,6 @@ INSTALLED_APPS = [
     'reviews',
     'tutors',
     # Legacy api app removed - all models moved to new apps
-    # 'api',  # REMOVED: Causes model conflicts with new apps
     'rest_framework_simplejwt.token_blacklist',
 ]
 
@@ -156,13 +155,13 @@ REST_FRAMEWORK = {
 
 # NEW: JWT token configuration (secure authentication for mobile)
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(hours=24),    # Token valid for 24 hours
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),     # Refresh token valid for 7 days
-    'ROTATE_REFRESH_TOKENS': True,                   # Generate new refresh token on use
-    'BLACKLIST_AFTER_ROTATION': True,               # Invalidate old refresh tokens
-    'UPDATE_LAST_LOGIN': True,                       # Update last login timestamp
-    'ALGORITHM': 'HS256',                           # Encryption algorithm
-    'SIGNING_KEY': SECRET_KEY,                      # Use SECRET_KEY for signing
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=config('JWT_ACCESS_TOKEN_LIFETIME_HOURS', default=24, cast=int)),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=config('JWT_REFRESH_TOKEN_LIFETIME_DAYS', default=7, cast=int)),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'UPDATE_LAST_LOGIN': True,
+    'ALGORITHM': config('JWT_ALGORITHM', default='HS256'),
+    'SIGNING_KEY': config('JWT_SIGNING_KEY', default=config('SECRET_KEY')),
 }
 
 # CORS: Cross-Origin Resource Sharing
@@ -194,9 +193,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 # LANGUAGE_CODE = 'vi-VN'  # CHANGED: Vietnamese language for tutoring platform
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = config('LANGUAGE_CODE', default='en-us')
 
-TIME_ZONE = 'Asia/Ho_Chi_Minh'  # CHANGED: Vietnam timezone
+TIME_ZONE = config('TIME_ZONE', default='Asia/Ho_Chi_Minh')
 
 USE_I18N = True
 USE_L10N = True
@@ -214,8 +213,8 @@ MEDIA_URL = '/media/'  # URL prefix for media files
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Directory to store uploaded files
 
 # NEW: File upload security settings
-FILE_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB max file size in memory
-DATA_UPLOAD_MAX_MEMORY_SIZE = 5242880  # 5MB max total upload size
+FILE_UPLOAD_MAX_MEMORY_SIZE = config('FILE_UPLOAD_MAX_MEMORY_SIZE', default=5242880, cast=int)
+DATA_UPLOAD_MAX_MEMORY_SIZE = config('DATA_UPLOAD_MAX_MEMORY_SIZE', default=5242880, cast=int)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field

@@ -17,8 +17,7 @@ from faker import Faker
 from users.models import CustomUser
 from subjects.models import Subject
 from profiles.models import (
-    StudentProfile, TutorProfile, TutorSubject, TutorSubjectTag,
-    TutorAchievement, ClassLevel
+    StudentProfile, TutorProfile, TutorSubject, TutorSubjectTag, ClassLevel
 )
 from interactions.models import TutorLike, TutorSave, TutorView
 from chats.models import ChatRoom, Message
@@ -168,7 +167,9 @@ class Command(BaseCommand):
             ChatRoom.objects.all().delete()
             TutorSubjectTag.objects.all().delete()
             TutorSubject.objects.all().delete()
-            TutorAchievement.objects.all().delete()
+            TutorSubjectTag.objects.all().delete()
+            TutorSubject.objects.all().delete()
+            # TutorAchievement.objects.all().delete() - Model removed
             TutorProfile.objects.all().delete()
             StudentProfile.objects.all().delete()
             CustomUser.objects.filter(user_type__in=['tutor', 'student']).delete()
@@ -251,30 +252,34 @@ class Command(BaseCommand):
             selected_levels = random.sample(list(class_levels.values()), k=random.randint(1, 3))
             profile.class_levels.set(selected_levels)
 
+            # Add achievements (0-3) - NOW stored in JSONField
+            num_achievements = random.randint(0, 3)
+            achievements_list = [f"Thành tích {j+1}" for j in range(num_achievements)]
+            if num_achievements > 0:
+                profile.achievements = achievements_list
+                profile.save()
+
             # Add tutor subjects (1-3 subjects)
             selected_subjects = random.sample(subject_pool, k=random.randint(1, 3))
             TutorSubject.objects.filter(tutor_profile=profile).delete()
             for subj_name in selected_subjects:
-                level = random.choice(['basic', 'advanced'])
-                price = round(random.uniform(200000, 800000), 0)  # VND
-                TutorSubject.objects.create(
+                # Create TutorSubject (no price/level here anymore)
+                ts = TutorSubject.objects.create(
                     tutor_profile=profile,
-                    subject=all_subjects[subj_name],
-                    level=level,
-                    price=price
+                    subject=all_subjects[subj_name]
                 )
-
-            # Update price range
-            profile.update_price_range()
-
-            # Add achievements (0-3)
-            num_achievements = random.randint(0, 3)
-            for j in range(num_achievements):
-                TutorAchievement.objects.create(
-                    tutor_profile=profile,
-                    title=f"Thành tích {j+1}",
-                    is_featured=random.choice([True, False])
-                )
+                
+                # Create Tags with Prices
+                level_tags = ['Basic', 'Advanced', 'Exam Prep']
+                selected_tags = random.sample(level_tags, k=random.randint(1, 2))
+                
+                for tag in selected_tags:
+                    price = round(random.uniform(200000, 800000), 0)
+                    TutorSubjectTag.objects.create(
+                        tutor_subject=ts,
+                        tag=tag,
+                        price=price
+                    )
 
             tutors.append(profile)
 
